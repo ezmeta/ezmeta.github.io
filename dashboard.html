@@ -1385,9 +1385,19 @@ function renderMeta() {
   document.getElementById('pg-sub').textContent = ds + ' — EZMeta Engine v2.0';
   document.getElementById('sync-time').textContent = '⟳ ' + ts;
   document.getElementById('last-scan').textContent = 'Updated: ' + ts;
-  document.getElementById('rec-nb').textContent = D.recommendations.length;
-  document.getElementById('alt-nb').textContent = D.alerts.length;
-  document.getElementById('bgt-nb').textContent = D.budget_alerts.length;
+  // Only show badge if count > 0
+  const recCount = D.recommendations.length;
+  const altCount = D.alerts.length;
+  const bgtCount = D.budget_alerts.length;
+  const recNb = document.getElementById('rec-nb');
+  const altNb = document.getElementById('alt-nb');
+  const bgtNb = document.getElementById('bgt-nb');
+  recNb.textContent = recCount;
+  recNb.style.display = recCount > 0 ? 'inline' : 'none';
+  altNb.textContent = altCount;
+  altNb.style.display = altCount > 0 ? 'inline' : 'none';
+  bgtNb.textContent = bgtCount;
+  bgtNb.style.display = bgtCount > 0 ? 'inline' : 'none';
   document.getElementById('alt-badge2').textContent = D.alerts.length + ' alerts';
   document.getElementById('bgt-badge2').textContent = D.budget_alerts.length + ' campaigns';
   document.getElementById('win-badge2').textContent = D.winners.length + ' detected';
@@ -2148,6 +2158,10 @@ function saveConfig(updates) {
 
 function loadConfig() {
   const cfg = getConfig();
+  // Load saved profile name
+  if (cfg.profile_name && document.getElementById('cfg-name')) {
+    document.getElementById('cfg-name').value = cfg.profile_name;
+  }
   const preview = document.getElementById('config-preview');
   const display = {
     mode: cfg.mode || 'DEMO',
@@ -2185,11 +2199,19 @@ async function saveProfile() {
   const pass = document.getElementById('cfg-pass').value;
   if (!name) { showToast('⚠️ Masukkan nama'); return; }
 
-  // Update display name
+  // Update display name everywhere
   document.getElementById('user-name').textContent = name;
+
+  // Update currentUser and session
+  if (currentUser) {
+    currentUser.name = name;
+    sessionStorage.setItem('ezmeta_user', JSON.stringify(currentUser));
+  }
+
+  // Save to localStorage config
   saveConfig({ profile_name: name });
 
-  // If client, update via API
+  // If client — update name in Supabase
   if (currentUser?.client_id) {
     try {
       await fetch(API_URL + `/clients/${currentUser.client_id}`, {
@@ -2197,14 +2219,17 @@ async function saveProfile() {
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ name })
       });
-      currentUser.name = name;
-      sessionStorage.setItem('ezmeta_user', JSON.stringify(currentUser));
-    } catch(e) {}
+    } catch(e) { console.log('Profile update error:', e); }
   }
 
   // Change password if filled
-  if (pass && currentUser?.client_id) {
-    await saveClientPassword();
+  if (pass) {
+    if (currentUser?.client_id) {
+      await saveClientPassword();
+    } else {
+      showToast('✅ Nama disimpan! (Password admin ditukar semasa restart)');
+      return;
+    }
   }
 
   showToast('✅ Profile disimpan!');
