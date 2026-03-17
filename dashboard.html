@@ -2256,15 +2256,28 @@ function saveConfig(updates) {
 }
 
 function loadConfig() {
-  const cfg = getConfig();
-
-  // If client — load their own chat_id from server
+  // CLIENT — load dari server (data client sendiri), bukan localStorage
   if (currentUser && !currentUser.isAdmin && currentUser.client_id) {
+    // Clear fields dulu — default kosong
+    document.getElementById('cfg-account').value = '';
+    document.getElementById('cfg-chat-id').value = '';
+    document.getElementById('cfg-mode').value = 'DEMO';
+    // Fetch dari server
     fetch(`${API_URL}/clients/${currentUser.client_id}`)
       .then(r => r.json()).then(client => {
-        if (client.chat_id) document.getElementById('cfg-chat-id').value = client.chat_id;
+        const acct = client.ad_account_id || '';
+        const chat = client.chat_id || '';
+        const token = client.access_token || '';
+        const hasLive = token && token !== 'LETAK_TOKEN_SINI' && acct;
+        document.getElementById('cfg-account').value = acct;
+        document.getElementById('cfg-chat-id').value = chat;
+        document.getElementById('cfg-mode').value = hasLive ? 'LIVE' : 'DEMO';
       }).catch(()=>{});
+    return; // Client hanya load API settings — AI Rules etc kekal global
   }
+
+  // ADMIN — load dari localStorage seperti biasa
+  const cfg = getConfig();
   const preview = document.getElementById('config-preview');
   const display = {
     mode: cfg.mode || 'DEMO',
@@ -2280,9 +2293,8 @@ function loadConfig() {
     max_daily_budget: 'RM ' + (cfg.max_budget || '200'),
     scan_times: `${cfg.time1||'08:00'}, ${cfg.time2||'14:00'}, ${cfg.time3||'21:00'}`,
   };
-  preview.textContent = JSON.stringify(display, null, 2);
+  if (preview) preview.textContent = JSON.stringify(display, null, 2);
 
-  // Load values into form fields
   if (cfg.mode) document.getElementById('cfg-mode').value = cfg.mode;
   if (cfg.account_id) document.getElementById('cfg-account').value = cfg.account_id;
   if (cfg.chat_id) document.getElementById('cfg-chat-id').value = cfg.chat_id;
@@ -2351,6 +2363,29 @@ async function saveApiSettings() {
   const token = document.getElementById('cfg-token').value;
   const account = document.getElementById('cfg-account').value;
   const mode = document.getElementById('cfg-mode').value;
+
+  if (currentUser && !currentUser.isAdmin && currentUser.client_id) {
+    // CLIENT — save ke profile sendiri
+    const updates = {};
+    if (account) updates.ad_account_id = account;
+    if (token) updates.access_token = token;
+    try {
+      const r = await fetch(`${API_URL}/clients/${currentUser.client_id}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(updates)
+      });
+      if (r.ok) {
+        showToast('✅ API Settings disimpan! Scan seterusnya akan guna data anda.');
+        document.getElementById('mlbl').textContent = (token && account) ? 'LIVE MODE' : 'DEMO MODE';
+        if (token && account) document.getElementById('mdot').classList.add('live');
+        else document.getElementById('mdot').classList.remove('live');
+      } else { showToast('⚠️ Gagal simpan. Cuba lagi.'); }
+    } catch(e) { showToast('⚠️ Gagal simpan. Cuba lagi.'); }
+    return;
+  }
+
+  // ADMIN — save ke global config
   if (!account) { showToast('⚠️ Masukkan Ad Account ID'); return; }
   saveConfig({ token, account_id: account, mode });
   const ok = await saveConfigToAPI({ access_token: token, ad_account_id: account, mode });
