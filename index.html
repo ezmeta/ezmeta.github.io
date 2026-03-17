@@ -762,6 +762,63 @@ footer {
 }
 
 .faq-item.open .faq-a { max-height: 200px; padding-top: 12px; }
+
+/* ============================================================
+   MOBILE RESPONSIVE — LANDING PAGE
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Nav */
+  .nav-links { display: none; }
+  .nav-cta { padding: 8px 16px; font-size: 13px; }
+  nav { padding: 14px 20px; }
+
+  /* Hero */
+  .hero { padding: 80px 20px 60px; }
+  .hero-title { font-size: 36px; }
+  .hero-sub { font-size: 15px; }
+  .hero-stats { gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .hero-cta { flex-direction: column; align-items: center; gap: 12px; }
+
+  /* Sections */
+  section { padding: 60px 20px; }
+  .section-title { font-size: 28px; }
+  .section-sub { font-size: 15px; }
+
+  /* Features grid */
+  .features-grid { grid-template-columns: 1fr; gap: 16px; }
+  .feature-card { padding: 24px; }
+
+  /* How it works */
+  .steps-grid { grid-template-columns: 1fr; gap: 24px; }
+
+  /* Telegram preview */
+  .preview-layout { grid-template-columns: 1fr; gap: 40px; }
+
+  /* Pricing */
+  .pricing-grid { grid-template-columns: 1fr; max-width: 360px; margin: 0 auto; }
+  .pricing-card.featured { transform: none; }
+
+  /* Testimonials */
+  .testi-grid { grid-template-columns: 1fr; }
+
+  /* FAQ */
+  .faq-grid { grid-template-columns: 1fr; }
+
+  /* Footer */
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-links { flex-direction: column; gap: 12px; }
+
+  /* CTA section */
+  .cta-section { padding: 60px 20px; }
+  .cta-title { font-size: 28px; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 28px; }
+  .hero-badge { font-size: 11px; }
+  .stat-val { font-size: 28px; }
+}
+
 </style>
 </head>
 <body>

@@ -325,7 +325,78 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
 .roas-diff-up{color:var(--green);}
 .roas-diff-down{color:var(--red);}
 
-#toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;transform:translateY(60px);opacity:0;transition:all .25s;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+
+/* ============================================================
+   MOBILE RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  :root { --sw: 0px; }
+
+  /* Hide sidebar on mobile */
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+
+  /* Mobile topbar */
+  .topbar { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+  .pg-title { font-size: 14px; }
+  .top-right { gap: 6px; }
+  .top-right .btn { padding: 6px 10px; font-size: 11px; }
+  .sync-chip { display: none; }
+
+  /* Content padding */
+  .content { padding: 14px 16px; }
+
+  /* Stats */
+  .stats-row { grid-template-columns: repeat(2,1fr); gap: 10px; }
+  .stat-val { font-size: 20px; }
+  .two-col { grid-template-columns: 1fr; }
+  .two-col-eq { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr; }
+
+  /* Health grid */
+  .health-grid { grid-template-columns: 1fr; }
+
+  /* Client grid */
+  .client-grid { grid-template-columns: 1fr; }
+
+  /* Revenue stats */
+  .revenue-stats { grid-template-columns: repeat(2,1fr); }
+  .sales-stats { grid-template-columns: repeat(2,1fr) !important; }
+
+  /* Form grids */
+  .form-grid-3 { grid-template-columns: 1fr !important; }
+  .form-grid-2 { grid-template-columns: 1fr !important; }
+  .form-grid { grid-template-columns: 1fr !important; }
+
+  /* Table scroll */
+  .card { overflow-x: auto; }
+  .tbl { min-width: 500px; }
+
+  /* Mobile nav bottom bar */
+  .mobile-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    padding: 8px 0 env(safe-area-inset-bottom, 8px);
+    z-index: 200;
+    justify-content: space-around;
+  }
+
+  .main { padding-bottom: 70px; }
+
+  /* Login page mobile */
+  .login-card { margin: 16px; padding: 28px 24px; }
+}
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .revenue-stats { grid-template-columns: 1fr 1fr; }
+  .topbar .btn-dark { display: none; }
+}
+
+#toast{position:fixed;bottom:80px;right:16px;background:var(--text);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;transform:translateY(60px);opacity:0;transition:all .25s;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);}
 
 /* CLIENT MANAGEMENT */
 .client-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
@@ -453,6 +524,25 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
     </div>
   </div>
 </aside>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-nav" style="display:none;">
+  <div onclick="mobileTab('overview')" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 12px;color:var(--muted);font-size:10px;">
+    <span style="font-size:18px;">⬡</span>Overview
+  </div>
+  <div onclick="mobileTab('ai')" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 12px;color:var(--muted);font-size:10px;">
+    <span style="font-size:18px;">◎</span>AI Feed
+  </div>
+  <div onclick="mobileTab('campaigns')" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 12px;color:var(--muted);font-size:10px;">
+    <span style="font-size:18px;">◈</span>Campaigns
+  </div>
+  <div onclick="mobileTab('alerts')" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 12px;color:var(--muted);font-size:10px;">
+    <span style="font-size:18px;">◬</span>Alerts
+  </div>
+  <div onclick="mobileTab('myprofile')" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 12px;color:var(--muted);font-size:10px;">
+    <span style="font-size:18px;">👤</span>Profil
+  </div>
+</div>
 
 <main class="main">
   <header class="topbar">
@@ -2122,6 +2212,12 @@ const origGoTab = window.goTab;
 
 loadData();
 setInterval(loadData, 5*60*1000);
+
+function mobileTab(id) {
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  document.getElementById('pg-title').textContent = tabTitles[id]||id;
+}
 </script>
 </body>
 </html>
