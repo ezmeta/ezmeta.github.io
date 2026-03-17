@@ -475,19 +475,19 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
   <nav class="nav">
     <div class="nav-lbl">Main</div>
     <div class="nav-item active" onclick="goTab(event,'overview')">⬡ Overview</div>
-    <div class="nav-item" onclick="goTab(event,'campaigns')">◈ Campaigns</div>
-    <div class="nav-lbl" style="margin-top:8px;">AI Engine</div>
-    <div class="nav-item" onclick="goTab(event,'ai')">◎ AI Feed <span class="nb" id="rec-nb">0</span></div>
-    <div class="nav-item" onclick="goTab(event,'health')">❤ Health Score</div>
-    <div class="nav-lbl" style="margin-top:8px;">Tracking</div>
-    <div class="nav-item" onclick="goTab(event,'budget')">💰 Budget Tracker <span class="nb" id="bgt-nb">0</span></div>
-    <div class="nav-item" onclick="goTab(event,'winners')">🏆 Winning Ads</div>
-    <div class="nav-item" onclick="goTab(event,'fatigue')">😴 Creative Fatigue</div>
-    <div class="nav-item" onclick="goTab(event,'sales')">💵 Sales Tracker</div>
-    <div class="nav-lbl" style="margin-top:8px;">Reports</div>
-    <div class="nav-item" onclick="goTab(event,'alerts')">◬ Alerts <span class="nb" id="alt-nb">0</span></div>
-    <div class="nav-item" onclick="goTab(event,'report')">≡ Daily Report</div>
-    <div class="nav-item" onclick="goTab(event,'weekly')">📅 Weekly Report</div>
+    <div class="nav-item data-only" onclick="goTab(event,'campaigns')">◈ Campaigns</div>
+    <div class="nav-lbl data-only" style="margin-top:8px;">AI Engine</div>
+    <div class="nav-item data-only" onclick="goTab(event,'ai')">◎ AI Feed <span class="nb" id="rec-nb">0</span></div>
+    <div class="nav-item data-only" onclick="goTab(event,'health')">❤ Health Score</div>
+    <div class="nav-lbl data-only" style="margin-top:8px;">Tracking</div>
+    <div class="nav-item data-only" onclick="goTab(event,'budget')">💰 Budget Tracker <span class="nb" id="bgt-nb">0</span></div>
+    <div class="nav-item data-only" onclick="goTab(event,'winners')">🏆 Winning Ads</div>
+    <div class="nav-item data-only" onclick="goTab(event,'fatigue')">😴 Creative Fatigue</div>
+    <div class="nav-item data-only" onclick="goTab(event,'sales')">💵 Sales Tracker</div>
+    <div class="nav-lbl data-only" style="margin-top:8px;">Reports</div>
+    <div class="nav-item data-only" onclick="goTab(event,'alerts')">◬ Alerts <span class="nb" id="alt-nb">0</span></div>
+    <div class="nav-item data-only" onclick="goTab(event,'report')">≡ Daily Report</div>
+    <div class="nav-item data-only" onclick="goTab(event,'weekly')">📅 Weekly Report</div>
     <div class="nav-lbl" style="margin-top:8px;">System</div>
     <div class="nav-item" onclick="goTab(event,'settings')">⚙ Settings</div>
     <div class="admin-only" style="display:none;">
@@ -1152,6 +1152,7 @@ function setupDashboard(u) {
   if (u.isAdmin) {
     document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
     document.querySelectorAll('.client-only').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.data-only').forEach(el => el.style.display = 'block');
     document.getElementById('client-switcher').style.display = 'block';
     loadClientsTab();
     loadData();
@@ -1159,6 +1160,8 @@ function setupDashboard(u) {
     document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.client-only').forEach(el => el.style.display = 'block');
     document.getElementById('client-switcher').style.display = 'none';
+    // Hide data tabs until setup complete
+    document.querySelectorAll('.data-only').forEach(el => el.style.display = 'none');
     currentClientId = u.client_id;
     loadClientData(u.client_id);
     showClientWelcome(u);
@@ -1613,6 +1616,8 @@ async function saveClientCredentials() {
     const result = await r.json();
     if (r.ok) {
       showToast('✅ Credentials disimpan! EZMeta akan mula monitor ads anda.');
+      // Show data tabs now that token is set
+      document.querySelectorAll('.data-only').forEach(el => el.style.display = 'block');
       loadClientData(currentUser.client_id);
     } else showToast('⚠️ ' + (result.detail||'Gagal simpan'));
   } catch(e) { showToast('⚠️ API tidak aktif'); }
@@ -1675,6 +1680,9 @@ async function loadClientData(clientId) {
       showClientSetupRequired();
       return;
     }
+
+    // Show data tabs
+    document.querySelectorAll('.data-only').forEach(el => el.style.display = 'block');
 
     // Load real data
     const r = await fetch(API_URL + `/data?client_id=${clientId}&t=` + Date.now());
