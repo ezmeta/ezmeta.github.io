@@ -900,13 +900,23 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
           </div>
         </div>
         <button class="btn btn-dark" onclick="saveApiSettings()">Simpan API Settings</button>
-        <div id="client-telegram-hint" style="display:none;margin-top:16px;padding:12px 14px;background:#22c55e10;border:1px solid #22c55e30;border-radius:10px;">
-          <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:#16a34a;">✈️ Aktifkan Telegram Notifications</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5;">Start bot EZMeta dalam Telegram untuk terima laporan iklan 3x sehari secara automatik.</div>
-          <a href="https://t.me/EZMetaAlertbot" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#fff;text-decoration:none;background:#22c55e;padding:7px 14px;border-radius:7px;">
+      </div>
+
+      <!-- Telegram Bot Button — Client Only -->
+      <div class="card client-only" id="client-telegram-hint" style="margin-bottom:16px;border:1px solid #22c55e30;background:#22c55e08;">
+        <div class="card-hd"><span class="card-title">✈️ Telegram Notifications</span><span class="badge" style="background:#22c55e20;color:#16a34a;">Bot</span></div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">
+          Start bot EZMeta dalam Telegram untuk terima laporan iklan <b>3x sehari</b> secara automatik — 8 pagi, 2 petang, 9 malam.
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="https://t.me/EZMetaAlertbot" target="_blank" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#fff;text-decoration:none;background:#22c55e;padding:10px 18px;border-radius:8px;">
             ✈️ Start @EZMetaAlertbot
           </a>
+          <button onclick="testClientTelegram()" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text);background:var(--bg2);border:1px solid var(--border2);padding:10px 18px;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+            📤 Test Hantar Alert
+          </button>
         </div>
+        <div id="tg-test-result" style="display:none;margin-top:10px;padding:10px;background:var(--bg2);border-radius:8px;font-size:12px;"></div>
       </div>
 
       <!-- Telegram Settings — Admin Only -->
@@ -2304,9 +2314,6 @@ function loadConfig() {
         if (token && token !== 'LETAK_TOKEN_SINI') document.getElementById('cfg-token').value = token;
         document.getElementById('cfg-mode').value = hasLive ? 'LIVE' : 'DEMO';
       }).catch(()=>{});
-    // Show telegram bot hint for client
-    const tgHint = document.getElementById('client-telegram-hint');
-    if (tgHint) tgHint.style.display = 'block';
     return;
   }
 
@@ -2428,6 +2435,28 @@ async function saveApiSettings() {
   else document.getElementById('mdot').classList.remove('live');
   showToast(ok ? '✅ API Settings disimpan ke server!' : '✅ Disimpan locally (API offline)');
   await loadData();
+}
+
+async function testClientTelegram() {
+  const resultBox = document.getElementById('tg-test-result');
+  resultBox.style.display = 'block';
+  resultBox.innerHTML = '⏳ Menghantar test alert...';
+  if (!currentUser?.client_id) {
+    resultBox.innerHTML = '❌ Client ID tidak dijumpai.';
+    return;
+  }
+  try {
+    const r = await fetch(`${API_URL}/telegram/test-client?client_id=${currentUser.client_id}`, { method: 'POST' });
+    const data = await r.json();
+    if (r.ok && data.status === 'ok') {
+      resultBox.innerHTML = '✅ Test alert berjaya dihantar ke Telegram anda!';
+      resultBox.style.background = '#22c55e15';
+    } else {
+      resultBox.innerHTML = `⚠️ Gagal: ${data.detail || 'Chat ID belum diset oleh admin. Hubungi admin anda.'}`;
+    }
+  } catch(e) {
+    resultBox.innerHTML = '❌ Gagal sambung ke server. Cuba lagi.';
+  }
 }
 
 async function checkMyChatId() {
