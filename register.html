@@ -127,8 +127,9 @@ textarea.form-input{height:80px;resize:none;}
         <div class="logo-icon">
           <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="8" width="3" height="6" rx="1" fill="white"/><rect x="6.5" y="5" width="3" height="9" rx="1" fill="white"/><rect x="11" y="2" width="3" height="12" rx="1" fill="white"/></svg>
         </div>
-        <span class="logo-name">EZMeta</span>
+        <a href="https://ezmeta.github.io" style="color:#fff;text-decoration:none;"><span class="logo-name">EZMeta</span></a>
       </div>
+      <a href="https://ezmeta.github.io" style="display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;margin-bottom:32px;transition:color .15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.6)'">← Kembali ke laman utama</a>
 
       <div class="hero-title">Run Meta Ads seperti <em>pakar</em>,<br>walaupun baru bermula.</div>
       <div class="hero-sub">AI yang pantau ads anda 24/7 dan hantar laporan terus ke Telegram — dalam Bahasa Malaysia.</div>
@@ -171,11 +172,6 @@ textarea.form-input{height:80px;resize:none;}
         <div class="step" id="step-2">
           <div class="step-num">2</div>
           <div class="step-lbl">Plan</div>
-        </div>
-        <div class="step-line"></div>
-        <div class="step" id="step-3">
-          <div class="step-num">3</div>
-          <div class="step-lbl">Ads Setup</div>
         </div>
       </div>
 
@@ -241,40 +237,11 @@ textarea.form-input{height:80px;resize:none;}
           <div class="form-hint">7 hari percuma. Bayaran bermula selepas trial tamat.</div>
         </div>
         <div class="form-group">
-          <label class="form-label">Telegram Chat ID <span>*</span></label>
-          <input class="form-input" id="r-chatid" placeholder="Contoh: 1234567890" />
-          <div class="form-hint">Cara dapat Chat ID: Start @userinfobot dalam Telegram → dia akan reply Chat ID anda</div>
-        </div>
-        <div class="form-group">
           <label class="form-label">Mesej / Soalan (optional)</label>
           <textarea class="form-input" id="r-message" placeholder="Ada soalan? Nak tanya apa-apa sebelum daftar?"></textarea>
         </div>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="prevStep(2)">← Balik</button>
-          <button class="btn btn-primary" onclick="nextStep(2)">Seterusnya →</button>
-        </div>
-      </div>
-
-      <!-- STEP 3: Ads Setup -->
-      <div class="form-step" id="form-step-3">
-        <div style="background:var(--accent-light);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--accent);">
-          💡 Bahagian ni optional — boleh skip dulu dan update kemudian dalam dashboard.
-        </div>
-        <div class="form-group">
-          <label class="form-label">Ad Account ID</label>
-          <input class="form-input" id="r-account" placeholder="act_XXXXXXXXXX" style="font-family:'JetBrains Mono',monospace;" />
-          <div class="form-hint">Dapat dari URL adsmanager.facebook.com — contoh: act_986107347419174</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Meta Access Token</label>
-          <input type="password" class="form-input" id="r-token" placeholder="EAAVqTw..." style="font-family:'JetBrains Mono',monospace;" />
-          <div class="form-hint">Dapat dari developers.facebook.com → Tools → Graph API Explorer. Token ini selamat — kami tidak akan kongsikannya.</div>
-        </div>
-        <div style="background:var(--orange-light);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--orange);">
-          ⚠️ Access Token adalah seperti password — jangan kongsikan dengan sesiapa. EZMeta hanya guna token ini untuk baca data ads anda.
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-secondary" onclick="prevStep(3)">← Balik</button>
           <button class="btn btn-primary" id="submit-btn" onclick="submitRegister()">🚀 Hantar Permohonan</button>
         </div>
       </div>
@@ -321,11 +288,6 @@ function validateStep(step) {
     return true;
   }
   if (step === 2) {
-    const chatId = document.getElementById('r-chatid').value.trim();
-    if (!chatId) {
-      alert('Sila masukkan Telegram Chat ID anda');
-      return false;
-    }
     return true;
   }
   return true;
@@ -343,7 +305,7 @@ function prevStep(from) {
 }
 
 function updateSteps() {
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 2; i++) {
     document.getElementById(`form-step-${i}`).classList.remove('active');
     const stepEl = document.getElementById(`step-${i}`);
     stepEl.classList.remove('active','done');
@@ -362,8 +324,6 @@ function submitRegister() {
   const email = document.getElementById('r-email').value.trim();
   const biz = document.getElementById('r-biz').value.trim();
   const phone = document.getElementById('r-phone').value.trim();
-  const chatId = document.getElementById('r-chatid').value.trim();
-  const account = document.getElementById('r-account').value.trim();
   const message = document.getElementById('r-message').value.trim();
   const fee = selectedPlan==='STARTER'?49:selectedPlan==='PRO'?99:199;
 
@@ -375,8 +335,6 @@ function submitRegister() {
 📱 *Phone:* ${phone}
 🏢 *Bisnes:* ${biz}
 📦 *Plan:* ${selectedPlan} — RM ${fee}/bulan
-💬 *Telegram Chat ID:* ${chatId}
-${account ? `🆔 *Ad Account ID:* ${account}` : ''}
 ${message ? `💬 *Mesej:* ${message}` : ''}
 
 Saya berminat untuk mencuba EZMeta 7 hari percuma!`;
