@@ -1326,7 +1326,7 @@ async function loadData() {
       renderAll();
       showToast('⚠️ API offline — guna cached data');
     } catch(e2) {
-      showToast('⚠️ Start API: python3 -X utf8 -m uvicorn ezmeta_server:app --port 8888');
+      showToast('⚠️ Gagal sambung ke server. Cuba refresh semula.');
     }
   }
 }
