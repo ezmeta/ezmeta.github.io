@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EZMeta — AI Runkan Ads</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f4f0; --white:#fff; --border:#e8e6e0; --border2:#d8d5cc;
+  --text:#1a1916; --muted:#8a8780; --muted2:#b0ada4;
+  --accent:#0066ff; --accent-light:#e8f0ff;
+  --green:#00875a; --green-light:#e3f5ee;
+  --red:#d92d20; --red-light:#fef0ee;
+  --orange:#c45a0a; --orange-light:#fef3e8;
+  --purple:#6941c6; --purple-light:#f4f3ff;
+  --amber:#b45309; --amber-light:#fef3c7;
+  --sw:240px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;font-size:14px;}
+
+/* ============ LOGIN PAGE ============ */
+#login-page {
+  position:fixed; inset:0; background:var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  z-index:9999;
+}
+
+.login-card {
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:40px;
+  width:100%;
+  max-width:380px;
+  box-shadow:0 4px 24px rgba(0,0,0,0.08);
+}
+
+.login-logo {
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:8px;
+}
+
+.login-logo-icon {
+  width:36px; height:36px;
+  background:var(--text); border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.login-logo-icon svg { width:18px; height:18px; }
+
+.login-logo-name { font-weight:800; font-size:20px; letter-spacing:-0.5px; }
+
+.login-tagline {
+  font-size:12px; color:var(--muted);
+  margin-bottom:32px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+.login-label {
+  font-size:12px; font-weight:600;
+  color:var(--text); margin-bottom:6px;
+  display:block;
+}
+
+.login-input {
+  width:100%; padding:10px 14px;
+  border:1px solid var(--border2);
+  border-radius:8px; font-size:14px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  color:var(--text); background:var(--bg);
+  margin-bottom:16px; outline:none;
+  transition:border-color .15s;
+}
+
+.login-input:focus { border-color:var(--accent); background:var(--white); }
+
+.login-btn {
+  width:100%; padding:12px;
+  background:var(--text); color:white;
+  border:none; border-radius:8px;
+  font-size:14px; font-weight:600;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  cursor:pointer; transition:all .15s;
+  margin-top:4px;
+}
+
+.login-btn:hover { background:#2d2c28; }
+
+.login-error {
+  font-size:12px; color:var(--red);
+  background:var(--red-light);
+  padding:8px 12px; border-radius:6px;
+  margin-bottom:16px; display:none;
+  text-align:center;
+}
+
+.login-footer {
+  margin-top:24px; text-align:center;
+  font-size:11px; color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ============ DASHBOARD ============ */
+#dashboard-page { display:none; }
+
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sw);background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;}
+.logo-area{padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.logo-icon{width:32px;height:32px;background:var(--text);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-icon svg{width:16px;height:16px;}
+.logo-name{font-weight:800;font-size:19px;letter-spacing:-0.5px;}
+.logo-beta{font-size:9px;background:var(--accent-light);color:var(--accent);padding:2px 6px;border-radius:4px;font-weight:600;}
+.mode-chip{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-family:'JetBrains Mono',monospace;background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:5px;color:var(--muted);}
+.mode-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);}
+.mode-dot.live{background:var(--green);}
+.nav{flex:1;padding:10px 10px;overflow-y:auto;}
+.nav-lbl{font-size:10px;font-weight:600;color:var(--muted2);letter-spacing:0.8px;text-transform:uppercase;padding:8px 10px 4px;font-family:'JetBrains Mono',monospace;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .12s;margin-bottom:1px;}
+.nav-item:hover{background:var(--bg);color:var(--text);}
+.nav-item.active{background:var(--text);color:#fff;}
+.nb{margin-left:auto;font-size:10px;background:var(--red);color:#fff;padding:1px 6px;border-radius:20px;font-weight:600;font-family:'JetBrains Mono',monospace;}
+.nav-item.active .nb{background:rgba(255,255,255,.25);}
+.sidebar-foot{padding:14px;border-top:1px solid var(--border);}
+.ai-card-s{background:var(--bg);border-radius:10px;padding:12px;border:1px solid var(--border);}
+.pulse-row{display:flex;align-items:center;gap:8px;margin-bottom:2px;}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,135,90,.35);}50%{box-shadow:0 0 0 5px rgba(0,135,90,0);}}
+.pulse-lbl{font-size:12px;font-weight:600;}
+.pulse-sub{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+/* USER BADGE */
+.user-badge {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 12px;
+  background:var(--bg); border-radius:8px;
+  border:1px solid var(--border);
+  margin-bottom:8px; cursor:pointer;
+  transition:border-color .15s;
+}
+.user-badge:hover { border-color:var(--border2); }
+.user-avatar {
+  width:28px; height:28px; border-radius:50%;
+  background:var(--text); color:white;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; flex-shrink:0;
+}
+.user-name { font-size:12px; font-weight:600; flex:1; }
+.user-role { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+.logout-btn {
+  font-size:10px; color:var(--red); cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+}
+.logout-btn:hover { text-decoration:underline; }
+
+.main{margin-left:var(--sw);min-height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.pg-title{font-size:16px;font-weight:700;}
+.pg-sub{font-size:12px;color:var(--muted);margin-top:1px;font-family:'JetBrains Mono',monospace;}
+.top-right{display:flex;align-items:center;gap:10px;}
+.btn{padding:7px 16px;border-radius:8px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;transition:all .15s;}
+.btn-outline{background:#fff;color:var(--text);border:1px solid var(--border2);}
+.btn-outline:hover{border-color:var(--text);}
+.btn-dark{background:var(--text);color:#fff;}
+.btn-dark:hover{background:#2d2c28;}
+.sync-chip{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);background:var(--bg);padding:5px 10px;border-radius:6px;border:1px solid var(--border);}
+.content{padding:24px 28px;}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;animation:fadein .18s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(3px);}to{opacity:1;}}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+.stat-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.stat-val{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1;margin-bottom:6px;}
+.stat-delta{font-size:11px;font-weight:500;font-family:'JetBrains Mono',monospace;}
+.d-up{color:var(--green);} .d-down{color:var(--red);} .d-flat{color:var(--muted);}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-size:14px;font-weight:700;}
+.badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
+.b-blue{background:var(--accent-light);color:var(--accent);}
+.b-green{background:var(--green-light);color:var(--green);}
+.b-orange{background:var(--orange-light);color:var(--orange);}
+.b-red{background:var(--red-light);color:var(--red);}
+.b-gray{background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+.two-col{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:16px;}
+.two-col-eq{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;}
+.chart-wrap{position:relative;width:100%;height:180px;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;font-family:'JetBrains Mono',monospace;}
+.tbl td{padding:10px 12px;font-size:12.5px;border-bottom:1px solid rgba(232,230,224,.6);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--bg);}
+.cn{font-weight:600;} .ci{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px;}
+.vg{color:var(--green);font-weight:600;} .vb{color:var(--red);font-weight:600;} .vw{color:var(--orange);font-weight:600;}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
+.pA{background:var(--green-light);color:var(--green);}
+.pP{background:var(--red-light);color:var(--red);}
+.pL{background:var(--purple-light);color:var(--purple);}
+
+/* AI FEED */
+.ai-list{display:flex;flex-direction:column;gap:8px;}
+.ai-item{border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;gap:12px;transition:border-color .12s;}
+.ai-item:hover{border-color:var(--border2);}
+.ai-item.tPAUSE{border-left:3px solid var(--red);}
+.ai-item.tSCALE{border-left:3px solid var(--green);}
+.ai-item.tFREQUENCY_WARNING{border-left:3px solid var(--orange);}
+.ai-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.tPAUSE .ai-icon{background:var(--red-light);}
+.tSCALE .ai-icon{background:var(--green-light);}
+.tFREQUENCY_WARNING .ai-icon{background:var(--orange-light);}
+.ai-body{flex:1;}
+.ai-type{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px;font-family:'JetBrains Mono',monospace;}
+.tPAUSE .ai-type{color:var(--red);}
+.tSCALE .ai-type{color:var(--green);}
+.tFREQUENCY_WARNING .ai-type{color:var(--orange);}
+.ai-msg{font-size:12.5px;color:var(--text);line-height:1.4;margin-bottom:6px;}
+.ai-meta{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
+.ai-acts{display:flex;gap:6px;}
+.mini-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:#fff;color:var(--muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .12s;}
+.mini-btn:hover{border-color:var(--text);color:var(--text);}
+.mini-btn.primary{background:var(--text);color:#fff;border-color:var(--text);}
+
+/* HEALTH */
+.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.health-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.health-grade{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;margin-bottom:10px;}
+.grade-A{background:var(--green-light);color:var(--green);}
+.grade-B{background:var(--accent-light);color:var(--accent);}
+.grade-C{background:var(--amber-light);color:var(--amber);}
+.grade-D{background:var(--red-light);color:var(--red);}
+.health-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.health-score{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:10px;}
+.health-bar-bg{height:5px;background:var(--border);border-radius:3px;margin-bottom:10px;}
+.health-bar-fill{height:5px;border-radius:3px;}
+.health-breakdown{display:flex;flex-direction:column;gap:4px;}
+.hb-row{display:flex;align-items:center;justify-content:space-between;}
+.hb-lbl{font-size:10px;color:var(--muted);}
+.hb-val{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:500;}
+.hb-good{color:var(--green);} .hb-mid{color:var(--orange);} .hb-bad{color:var(--red);}
+
+/* BUDGET */
+.budget-list{display:flex;flex-direction:column;gap:8px;}
+.budget-item{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;border-left:3px solid;}
+.budget-item.CRITICAL{border-left-color:var(--red);}
+.budget-item.WARNING{border-left-color:var(--orange);}
+.budget-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.budget-name{font-size:13px;font-weight:600;}
+.budget-pct{font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.CRITICAL .budget-pct{color:var(--red);}
+.WARNING .budget-pct{color:var(--orange);}
+.budget-bar-bg{height:6px;background:var(--border);border-radius:3px;margin-bottom:6px;}
+.budget-bar-fill{height:6px;border-radius:3px;}
+.CRITICAL .budget-bar-fill{background:var(--red);}
+.WARNING .budget-bar-fill{background:var(--orange);}
+.budget-sub{font-size:11px;color:var(--muted);}
+
+/* WINNER */
+.winner-list{display:flex;flex-direction:column;gap:8px;}
+.winner-item{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;border-left:3px solid var(--green);}
+.winner-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.winner-name{font-size:13px;font-weight:600;}
+.winner-score{font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--green);}
+.winner-reasons{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+.reason-tag{font-size:10px;background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;}
+.winner-rec{font-size:11px;color:var(--muted);}
+
+/* FATIGUE */
+.fatigue-list{display:flex;flex-direction:column;gap:8px;}
+.fatigue-item{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.fatigue-item.KRITIKAL{border-left:3px solid var(--red);}
+.fatigue-item.SEDERHANA{border-left:3px solid var(--orange);}
+.fatigue-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.fatigue-name{font-size:13px;font-weight:600;}
+.fatigue-sev{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;}
+.KRITIKAL .fatigue-sev{background:var(--red-light);color:var(--red);}
+.SEDERHANA .fatigue-sev{background:var(--orange-light);color:var(--orange);}
+.fatigue-signals{display:flex;flex-direction:column;gap:3px;margin-bottom:6px;}
+.signal-row{font-size:11px;color:var(--muted);display:flex;gap:6px;}
+.signal-row::before{content:'•';flex-shrink:0;}
+.fatigue-rec{font-size:11px;color:var(--accent);font-weight:500;}
+
+/* ALERTS */
+.alert-list{display:flex;flex-direction:column;gap:8px;}
+.alert-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--white);border:1px solid var(--border);border-radius:10px;border-left:3px solid;}
+.alert-item.CRITICAL{border-left-color:var(--red);}
+.alert-item.WARNING{border-left-color:var(--orange);}
+.alert-item.INFO{border-left-color:var(--accent);}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.CRITICAL .alert-dot{background:var(--red);}
+.WARNING .alert-dot{background:var(--orange);}
+.INFO .alert-dot{background:var(--accent);}
+.alert-txt{flex:1;font-size:12.5px;line-height:1.4;}
+.alert-time{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+
+/* REPORT */
+.report-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:var(--muted);white-space:pre-wrap;}
+
+/* ============ SALES TRACKING ============ */
+.sales-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.sales-input-form{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.form-input{padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s;}
+.form-input:focus{border-color:var(--accent);background:var(--white);}
+.form-select{padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;cursor:pointer;}
+.sales-compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px;}
+.compare-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.compare-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.compare-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(232,230,224,.5);font-size:13px;}
+.compare-row:last-child{border-bottom:none;}
+.compare-lbl{color:var(--muted);}
+.compare-val{font-family:'JetBrains Mono',monospace;font-weight:600;}
+.roas-diff-up{color:var(--green);}
+.roas-diff-down{color:var(--red);}
+
+#toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;transform:translateY(60px);opacity:0;transition:all .25s;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+
+/* CLIENT MANAGEMENT */
+.client-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.client-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px;border-left:3px solid var(--accent);}
+.client-card.plan-PRO{border-left-color:var(--accent);}
+.client-card.plan-STARTER{border-left-color:var(--muted2);}
+.client-card.plan-AGENCY{border-left-color:var(--purple);}
+.client-card.status-INACTIVE{opacity:.5;}
+.client-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.client-name{font-size:14px;font-weight:700;}
+.client-biz{font-size:11px;color:var(--muted);margin-top:2px;}
+.client-plan{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
+.plan-STARTER .client-plan{background:var(--bg);color:var(--muted);border:1px solid var(--border2);}
+.plan-PRO .client-plan{background:var(--accent-light);color:var(--accent);}
+.plan-AGENCY .client-plan{background:var(--purple-light);color:var(--purple);}
+.client-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.client-stat{background:var(--bg);border-radius:6px;padding:8px 10px;}
+.client-stat-lbl{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.client-stat-val{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.client-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.token-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;}
+.token-ok{background:var(--green-light);color:var(--green);}
+.token-exp{background:var(--red-light);color:var(--red);}
+.token-demo{background:var(--amber-light);color:var(--amber);}
+
+/* ADD CLIENT FORM */
+.add-client-form{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
+.form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+
+/* REVENUE */
+.revenue-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.mrr-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px;border-top:3px solid var(--accent);}
+.mrr-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.mrr-val{font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px;}
+.mrr-sub{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN PAGE ============ -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="8" width="3" height="6" rx="1" fill="white"/><rect x="6.5" y="5" width="3" height="9" rx="1" fill="white"/><rect x="11" y="2" width="3" height="12" rx="1" fill="white"/></svg>
+      </div>
+      <span class="login-logo-name">EZMeta</span>
+    </div>
+    <div class="login-tagline">AI Runkan Ads · Guna Email sebagai Username</div>
+
+    <div class="login-error" id="login-error">Username atau password salah.</div>
+
+    <label class="login-label">Username</label>
+    <input type="email" class="login-input" id="login-user" placeholder="Email anda" />
+
+    <label class="login-label">Password</label>
+    <input type="password" class="login-input" id="login-pass" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()" />
+
+    <button class="login-btn" onclick="doLogin()">Log Masuk →</button>
+
+    <div class="login-footer">EZMeta v2.0 · Restricted Access</div>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD PAGE ============ -->
+<div id="dashboard-page">
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo">
+      <div class="logo-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="8" width="3" height="6" rx="1" fill="white"/><rect x="6.5" y="5" width="3" height="9" rx="1" fill="white"/><rect x="11" y="2" width="3" height="12" rx="1" fill="white"/></svg></div>
+      <span class="logo-name">EZMeta <span class="logo-beta">v2</span></span>
+    </div>
+    <div class="mode-chip"><span class="mode-dot" id="mdot"></span><span id="mlbl">DEMO MODE</span></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-lbl">Main</div>
+    <div class="nav-item active" onclick="goTab(event,'overview')">⬡ Overview</div>
+    <div class="nav-item" onclick="goTab(event,'campaigns')">◈ Campaigns</div>
+    <div class="nav-lbl" style="margin-top:8px;">AI Engine</div>
+    <div class="nav-item" onclick="goTab(event,'ai')">◎ AI Feed <span class="nb" id="rec-nb">0</span></div>
+    <div class="nav-item" onclick="goTab(event,'health')">❤ Health Score</div>
+    <div class="nav-lbl" style="margin-top:8px;">Tracking</div>
+    <div class="nav-item" onclick="goTab(event,'budget')">💰 Budget Tracker <span class="nb" id="bgt-nb">0</span></div>
+    <div class="nav-item" onclick="goTab(event,'winners')">🏆 Winning Ads</div>
+    <div class="nav-item" onclick="goTab(event,'fatigue')">😴 Creative Fatigue</div>
+    <div class="nav-item" onclick="goTab(event,'sales')">💵 Sales Tracker</div>
+    <div class="nav-lbl" style="margin-top:8px;">Reports</div>
+    <div class="nav-item" onclick="goTab(event,'alerts')">◬ Alerts <span class="nb" id="alt-nb">0</span></div>
+    <div class="nav-item" onclick="goTab(event,'report')">≡ Daily Report</div>
+    <div class="nav-item" onclick="goTab(event,'weekly')">📅 Weekly Report</div>
+    <div class="nav-lbl" style="margin-top:8px;">System</div>
+    <div class="nav-item" onclick="goTab(event,'settings')">⚙ Settings</div>
+    <div class="admin-only" style="display:none;">
+      <div class="nav-lbl" style="margin-top:8px;">Admin</div>
+      <div class="nav-item" onclick="goTab(event,'clients')">👥 Clients <span class="nb" id="clients-nb">0</span></div>
+      <div class="nav-item" onclick="goTab(event,'revenue')">💵 Revenue</div>
+    </div>
+    <div class="client-only" style="display:none;">
+      <div class="nav-lbl" style="margin-top:8px;">Akaun Saya</div>
+      <div class="nav-item" onclick="goTab(event,'myprofile')">👤 Profil & Setup</div>
+    </div>
+  </nav>
+  <!-- Client Switcher (admin only) -->
+  <div id="client-switcher" style="display:none;padding:10px 14px;border-top:1px solid var(--border);">
+    <div style="font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-family:'JetBrains Mono',monospace;">Tengok Data Client</div>
+    <select id="client-select" onchange="switchClient(this.value)" style="width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);cursor:pointer;outline:none;">
+      <option value="">-- Semua / Default --</option>
+    </select>
+  </div>
+  <div class="sidebar-foot">
+    <div class="user-badge">
+      <div class="user-avatar" id="user-avatar">AD</div>
+      <div>
+        <div class="user-name" id="user-name">Admin</div>
+        <div class="user-role" id="user-role">Administrator</div>
+      </div>
+    </div>
+    <div class="ai-card-s">
+      <div class="pulse-row"><div class="pulse-dot"></div><span class="pulse-lbl">AI Engine v2.0</span></div>
+      <div class="pulse-sub" id="last-scan">Loading...</div>
+    </div>
+    <div style="margin-top:8px;text-align:center;">
+      <span class="logout-btn" onclick="doLogout()">Log Keluar</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <div class="pg-title" id="pg-title">Overview</div>
+      <div class="pg-sub" id="pg-sub">Loading...</div>
+    </div>
+    <div class="top-right">
+      <span class="sync-chip" id="sync-time">⟳ Syncing...</span>
+      <button class="btn btn-outline" onclick="refreshData()">⟳ Refresh</button>
+      <button class="btn btn-dark" onclick="refreshData()">⚡ Run AI Scan</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="tab-pane active" id="pane-overview">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-lbl">Total Spend</div><div class="stat-val" id="s-spend">—</div><div class="stat-delta d-flat" id="s-budget-pct">—</div></div>
+        <div class="stat-card"><div class="stat-lbl">Avg ROAS</div><div class="stat-val" id="s-roas">—</div><div class="stat-delta d-up">↑ Target 4×</div></div>
+        <div class="stat-card"><div class="stat-lbl">True ROAS</div><div class="stat-val" id="s-true-roas">—</div><div class="stat-delta d-flat">Berdasarkan sales</div></div>
+        <div class="stat-card"><div class="stat-lbl">Conversions</div><div class="stat-val" id="s-conv">—</div><div class="stat-delta d-flat" id="s-clicks">—</div></div>
+        <div class="stat-card"><div class="stat-lbl">AI Actions</div><div class="stat-val" id="s-actions">—</div><div class="stat-delta" style="color:var(--purple);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;" id="s-actions-sub">—</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Spend vs ROAS — 14 Hari</span><span class="badge b-blue" id="dbadge">DEMO</span></div>
+          <div class="chart-wrap"><canvas id="chart1"></canvas></div>
+          <div style="display:flex;gap:16px;margin-top:10px;">
+            <span style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;"><span style="width:12px;height:2px;background:#0066ff;display:inline-block;border-radius:2px;"></span>Spend (RM)</span>
+            <span style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;"><span style="width:12px;height:2px;background:#00875a;display:inline-block;border-radius:2px;opacity:.7;"></span>ROAS</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-title">AI Queue</span><span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;" id="q-count">—</span></div>
+          <div class="ai-list" id="ai-queue"></div>
+        </div>
+      </div>
+      <div class="three-col">
+        <div class="card">
+          <div class="card-hd"><span class="card-title">🏆 Winning Ads</span><span class="badge b-green" id="win-badge">—</span></div>
+          <div class="winner-list" id="winner-preview"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-title">😴 Creative Fatigue</span><span class="badge b-red" id="fat-badge">—</span></div>
+          <div class="fatigue-list" id="fatigue-preview"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-title">💰 Budget Status</span><span class="badge b-orange" id="bgt-badge">—</span></div>
+          <div class="budget-list" id="budget-preview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGNS -->
+    <div class="tab-pane" id="pane-campaigns">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Semua Campaigns</span><span class="badge b-green" id="active-badge">—</span></div>
+        <table class="tbl">
+          <thead><tr><th>Campaign</th><th>Status</th><th>Budget</th><th>Spend</th><th>ROAS</th><th>CTR</th><th>CPC</th><th>Health</th></tr></thead>
+          <tbody id="all-camps"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI FEED -->
+    <div class="tab-pane" id="pane-ai">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">AI Recommendations</span><span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite;"></span>Engine Active</span></div>
+        <div class="ai-list" id="full-feed"></div>
+      </div>
+    </div>
+
+    <!-- HEALTH SCORE -->
+    <div class="tab-pane" id="pane-health">
+      <div class="card-hd" style="margin-bottom:16px;"><span style="font-size:15px;font-weight:700;">Campaign Health Score</span><span style="font-size:12px;color:var(--muted);">A=80+ | B=65+ | C=50+ | D=below 50</span></div>
+      <div class="health-grid" id="health-grid"></div>
+    </div>
+
+    <!-- BUDGET TRACKER -->
+    <div class="tab-pane" id="pane-budget">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">💰 Budget Tracker — Bulanan</span><span class="badge b-orange" id="bgt-badge2">—</span></div>
+        <div class="budget-list" id="full-budget"></div>
+      </div>
+    </div>
+
+    <!-- WINNERS -->
+    <div class="tab-pane" id="pane-winners">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">🏆 Winning Ads Detector</span><span class="badge b-green" id="win-badge2">—</span></div>
+        <div class="winner-list" id="full-winners"></div>
+      </div>
+    </div>
+
+    <!-- FATIGUE -->
+    <div class="tab-pane" id="pane-fatigue">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">😴 Creative Fatigue Detector</span><span class="badge b-red" id="fat-badge2">—</span></div>
+        <div class="fatigue-list" id="full-fatigue"></div>
+      </div>
+    </div>
+
+    <!-- SALES TRACKER -->
+    <div class="tab-pane" id="pane-sales">
+      <!-- Sales Stats -->
+      <div class="sales-stats">
+        <div class="stat-card"><div class="stat-lbl">Total PM</div><div class="stat-val" id="st-pm">—</div><div class="stat-delta d-flat">Enquiries</div></div>
+        <div class="stat-card"><div class="stat-lbl">Total Closing</div><div class="stat-val" id="st-closing">—</div><div class="stat-delta d-flat" id="st-rate">—</div></div>
+        <div class="stat-card"><div class="stat-lbl">Total Revenue</div><div class="stat-val" id="st-revenue">—</div><div class="stat-delta d-flat">Sales sebenar</div></div>
+        <div class="stat-card"><div class="stat-lbl">True ROAS</div><div class="stat-val" id="st-troas">—</div><div class="stat-delta d-up">Berdasarkan sales</div></div>
+      </div>
+
+      <!-- Input Form -->
+      <div class="sales-input-form">
+        <div class="card-hd"><span class="card-title">📝 Input Sales Harian</span><span class="badge b-blue">Manual Input</span></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Campaign</label>
+            <select class="form-select" id="si-campaign">
+              <option value="">Pilih campaign...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tarikh</label>
+            <input type="date" class="form-input" id="si-date" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jumlah PM / Enquiry</label>
+            <input type="number" class="form-input" id="si-pm" placeholder="0" min="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jumlah Closing</label>
+            <input type="number" class="form-input" id="si-closing" placeholder="0" min="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount Closing (RM)</label>
+            <input type="number" class="form-input" id="si-amount" placeholder="0.00" min="0" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nota (optional)</label>
+            <input type="text" class="form-input" id="si-note" placeholder="Contoh: promo raya" />
+          </div>
+        </div>
+        <button class="btn btn-dark" onclick="saveSalesEntry()">💾 Simpan Sales Entry</button>
+      </div>
+
+      <!-- True ROAS vs Meta ROAS Comparison -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-hd"><span class="card-title">📊 True ROAS vs Meta ROAS</span><span class="badge b-green">Sales-based</span></div>
+        <table class="tbl">
+          <thead><tr><th>Campaign</th><th>Meta ROAS</th><th>True ROAS</th><th>Beza</th><th>PM</th><th>Closing</th><th>Rate</th><th>Cost/Close</th></tr></thead>
+          <tbody id="sales-compare-table"></tbody>
+        </table>
+      </div>
+
+      <!-- Sales History -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">📋 Sales History</span></div>
+        <table class="tbl">
+          <thead><tr><th>Tarikh</th><th>Campaign</th><th>PM</th><th>Closing</th><th>Amount</th><th>Closing Rate</th></tr></thead>
+          <tbody id="sales-history"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="tab-pane" id="pane-alerts">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Semua Alerts</span><span class="badge b-red" id="alt-badge2">—</span></div>
+        <div class="alert-list" id="all-alerts"></div>
+      </div>
+    </div>
+
+    <!-- DAILY REPORT -->
+    <div class="tab-pane" id="pane-report">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <div><div style="font-size:15px;font-weight:700;">Daily Report</div><div style="font-size:12px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;">Auto-generated by EZMeta Engine</div></div>
+        <button class="btn btn-dark" onclick="refreshData()">⟳ Refresh</button>
+      </div>
+      <div class="report-box" id="daily-report">Loading...</div>
+    </div>
+
+    <!-- WEEKLY REPORT -->
+    <div class="tab-pane" id="pane-weekly">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <div><div style="font-size:15px;font-weight:700;">Weekly Report</div></div>
+        <button class="btn btn-dark" onclick="refreshData()">⟳ Refresh</button>
+      </div>
+      <div class="report-box" id="weekly-report">Loading...</div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="tab-pane" id="pane-clients">
+
+      <!-- Overview Stats -->
+      <div class="sales-stats" id="clients-overview-stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+        <div class="stat-card"><div class="stat-lbl">Total Clients</div><div class="stat-val" id="co-total">—</div><div class="stat-delta d-flat">Semua plan</div></div>
+        <div class="stat-card"><div class="stat-lbl">Active</div><div class="stat-val" id="co-active">—</div><div class="stat-delta d-up">Running</div></div>
+        <div class="stat-card"><div class="stat-lbl">Total MRR</div><div class="stat-val" id="co-mrr">—</div><div class="stat-delta d-up">Monthly recurring</div></div>
+        <div class="stat-card"><div class="stat-lbl">Total Campaigns</div><div class="stat-val" id="co-camps">—</div><div class="stat-delta d-flat">Semua clients</div></div>
+      </div>
+
+      <!-- Scan All Button -->
+      <div style="display:flex;gap:10px;margin-bottom:20px;">
+        <button class="btn btn-dark" onclick="scanAllClients()">⚡ Scan Semua Clients + Telegram</button>
+        <button class="btn btn-outline" onclick="loadClientsTab()">⟳ Refresh</button>
+        <button class="btn btn-outline" onclick="toggleAddForm()">➕ Add Client Baru</button>
+      </div>
+
+      <!-- Add Client Form -->
+      <div class="add-client-form" id="add-client-form" style="display:none;">
+        <div class="card-hd" style="margin-bottom:16px;"><span class="card-title">➕ Add Client Baru</span></div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Nama Client</label>
+            <input class="form-input" id="nc-name" placeholder="Nama client" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Bisnes</label>
+            <input class="form-input" id="nc-biz" placeholder="Nama bisnes / brand" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Plan</label>
+            <select id="nc-plan" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;cursor:pointer;">
+              <option value="STARTER">Starter — RM 49/bulan</option>
+              <option value="PRO" selected>Pro — RM 99/bulan</option>
+              <option value="AGENCY">Agency — RM 199/bulan</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Email Client <span style="color:var(--red);">*</span></label>
+            <input type="email" class="form-input" id="nc-email" placeholder="email@client.com" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">Ini akan jadi username untuk login</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">No. WhatsApp Client <span style="color:var(--red);">*</span></label>
+            <input class="form-input" id="nc-phone" placeholder="60123456789" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">Format: 601XXXXXXXX (tanpa +)</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nota</label>
+            <input class="form-input" id="nc-notes2" placeholder="Contoh: dapat dari FB group" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+        </div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Fee Bulanan (RM)</label>
+            <input type="number" class="form-input" id="nc-fee" placeholder="99" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password Sementara <span style="color:var(--red);">*</span></label>
+            <div style="display:flex;gap:6px;">
+              <input class="form-input" id="nc-temppass" placeholder="Min 6 aksara" style="flex:1;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+              <button onclick="generatePass()" style="padding:9px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;cursor:pointer;font-size:12px;white-space:nowrap;">🔀 Auto</button>
+            </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">Auto-hantar ke client via WhatsApp selepas simpan</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="opacity:0;">-</label>
+            <div style="background:var(--green-light);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--green);margin-top:0;">
+              ✅ Ad Account ID, Token & Telegram — client isi sendiri selepas login dalam tab "Profil & Setup"
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-dark" onclick="addNewClient()">💾 Simpan Client</button>
+          <button class="btn btn-outline" onclick="toggleAddForm()">Batal</button>
+          <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Selepas simpan, hantar details login ke client via WhatsApp</span>
+        </div>
+      </div>
+
+      <!-- Pending Approvals -->
+      <div id="pending-section" style="display:none;margin-bottom:20px;">
+        <div class="card" style="border-left:3px solid var(--orange);">
+          <div class="card-hd"><span class="card-title">⏳ Pending Approval</span><span class="badge b-orange" id="pending-badge">0</span></div>
+          <div id="pending-list"></div>
+        </div>
+      </div>
+
+      <!-- Clients Grid -->
+      <div class="client-grid" id="clients-grid">
+        <div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px;font-size:13px;">Loading clients...</div>
+      </div>
+
+    </div>
+
+    <!-- REVENUE -->
+    <div class="tab-pane" id="pane-revenue">
+      <div class="revenue-stats">
+        <div class="mrr-card"><div class="mrr-lbl">MRR</div><div class="mrr-val" id="rv-mrr" style="color:var(--accent);">—</div><div class="mrr-sub">Monthly Recurring Revenue</div></div>
+        <div class="mrr-card" style="border-top-color:var(--green);"><div class="mrr-lbl">ARR (est.)</div><div class="mrr-val" id="rv-arr" style="color:var(--green);">—</div><div class="mrr-sub">Annual Recurring Revenue</div></div>
+        <div class="mrr-card" style="border-top-color:var(--orange);"><div class="mrr-lbl">Active Clients</div><div class="mrr-val" id="rv-clients">—</div><div class="mrr-sub">Paying customers</div></div>
+        <div class="mrr-card" style="border-top-color:var(--purple);"><div class="mrr-lbl">Avg Revenue/Client</div><div class="mrr-val" id="rv-avg">—</div><div class="mrr-sub">Per client per bulan</div></div>
+      </div>
+
+      <!-- Revenue by Plan -->
+      <div class="two-col-eq" style="margin-bottom:16px;">
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Revenue by Plan</span></div>
+          <table class="tbl">
+            <thead><tr><th>Plan</th><th>Clients</th><th>Rate</th><th>MRR</th></tr></thead>
+            <tbody id="rv-by-plan"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-title">Client List</span></div>
+          <table class="tbl">
+            <thead><tr><th>Client</th><th>Plan</th><th>Fee/bulan</th><th>Status</th></tr></thead>
+            <tbody id="rv-client-list"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Cost vs Revenue -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">💰 P&L Estimate</span><span class="badge b-green">Monthly</span></div>
+        <table class="tbl">
+          <thead><tr><th>Item</th><th>Amount</th><th>Note</th></tr></thead>
+          <tbody id="rv-pnl"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-pane" id="pane-settings">
+
+      <!-- Profile -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-hd"><span class="card-title">👤 Profile</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Nama</label>
+            <input class="form-input" id="cfg-name" placeholder="Nama anda" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Password Baru</label>
+            <input type="password" class="form-input" id="cfg-pass" placeholder="Kosongkan jika tak nak tukar" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+        </div>
+        <button class="btn btn-dark" onclick="saveProfile()">Simpan Profile</button>
+      </div>
+
+      <!-- API Settings -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-hd"><span class="card-title">🔑 API Settings</span><span class="badge b-blue">Meta API</span></div>
+        <div style="background:var(--red-light);border:1px solid var(--red);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--red);">
+          ⚠️ Jangan share Access Token dengan sesiapa. Token ni macam password — sesiapa yang ada token boleh access Ads Manager anda.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Meta Access Token</label>
+            <input type="password" id="cfg-token" placeholder="EAAVqTw..." style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">Dapat dari: developers.facebook.com → Tools → Graph API Explorer</div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Ad Account ID</label>
+            <input id="cfg-account" placeholder="act_XXXXXXXXXX" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">Dapat dari URL adsmanager.facebook.com — contoh: act_986107347419174</div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Mode</label>
+            <select id="cfg-mode" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;cursor:pointer;">
+              <option value="DEMO">DEMO — Guna dummy data</option>
+              <option value="LIVE">LIVE — Guna real Meta API data</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-dark" onclick="saveApiSettings()">Simpan API Settings</button>
+      </div>
+
+      <!-- Telegram Settings -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-hd"><span class="card-title">📱 Telegram Settings</span><span class="badge b-green">Alert Bot</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Bot Token</label>
+            <input type="password" id="cfg-bot-token" placeholder="1234567890:ABCdef..." style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">Dapat dari @BotFather dalam Telegram</div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Chat ID</label>
+            <input id="cfg-chat-id" placeholder="1938251758" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">Dapat dari @userinfobot dalam Telegram</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-dark" onclick="saveTelegramSettings()">Simpan Telegram</button>
+          <button class="btn btn-outline" onclick="testTelegram()">📤 Test Hantar Alert</button>
+        </div>
+      </div>
+
+      <!-- AI Rules -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-hd"><span class="card-title">🤖 AI Rules</span><span class="badge b-gray">Thresholds</span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Pause jika CTR bawah (%)</label>
+            <input type="number" id="cfg-pause-ctr" placeholder="1.0" step="0.1" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Scale jika ROAS melebihi (×)</label>
+            <input type="number" id="cfg-scale-roas" placeholder="4.0" step="0.1" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Alert Frequency melebihi</label>
+            <input type="number" id="cfg-freq" placeholder="3.5" step="0.1" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Budget warning (%)</label>
+            <input type="number" id="cfg-budget-warn" placeholder="80" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Scale budget sebanyak (%)</label>
+            <input type="number" id="cfg-scale-pct" placeholder="20" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Max daily budget (RM)</label>
+            <input type="number" id="cfg-max-budget" placeholder="200" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+        </div>
+        <button class="btn btn-dark" onclick="saveAiRules()">Simpan AI Rules</button>
+      </div>
+
+      <!-- Notification Schedule -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-hd"><span class="card-title">🔔 Jadual Notifikasi</span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Scan Pagi</label>
+            <input type="time" id="cfg-time1" value="08:00" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Scan Tengahari</label>
+            <input type="time" id="cfg-time2" value="14:00" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Scan Malam</label>
+            <input type="time" id="cfg-time3" value="21:00" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+        </div>
+        <button class="btn btn-dark" onclick="saveSchedule()">Simpan Jadual</button>
+      </div>
+
+      <!-- Config Preview -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">📋 Config Semasa</span><span class="badge b-gray">Saved</span></div>
+        <div style="background:var(--bg);border-radius:8px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8;" id="config-preview">
+          Klik "Load Config" untuk tengok settings semasa.
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <button class="btn btn-outline" onclick="loadConfig()">Load Config</button>
+          <button class="btn btn-outline" onclick="exportConfig()">↓ Export Config</button>
+          <button class="btn btn-outline" onclick="resetConfig()">⚠ Reset Default</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CLIENT PROFILE -->
+    <div class="tab-pane" id="pane-myprofile">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-hd"><span class="card-title">👤 Profil Saya</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div class="client-stat" style="background:var(--bg);border-radius:8px;padding:14px;">
+            <div class="client-stat-lbl">Nama</div>
+            <div style="font-size:15px;font-weight:600;margin-top:4px;" id="cp-name">—</div>
+          </div>
+          <div class="client-stat" style="background:var(--bg);border-radius:8px;padding:14px;">
+            <div class="client-stat-lbl">Plan</div>
+            <div style="font-size:15px;font-weight:600;margin-top:4px;" id="cp-plan">—</div>
+          </div>
+          <div class="client-stat" style="background:var(--bg);border-radius:8px;padding:14px;">
+            <div class="client-stat-lbl">Bisnes</div>
+            <div style="font-size:15px;font-weight:600;margin-top:4px;" id="cp-biz">—</div>
+          </div>
+          <div class="client-stat" style="background:var(--bg);border-radius:8px;padding:14px;">
+            <div class="client-stat-lbl">Status</div>
+            <div style="font-size:15px;font-weight:600;margin-top:4px;color:var(--green);" id="cp-status">ACTIVE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setup Meta API -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-hd"><span class="card-title">🔑 Setup Meta API</span><span class="badge b-orange">Perlu untuk Live Mode</span></div>
+        <div style="background:var(--accent-light);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--accent);">
+          💡 Untuk EZMeta monitor ads anda secara real-time, anda perlu setup Meta Access Token dan Ad Account ID.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Ad Account ID</label>
+            <input id="cp-account-id" placeholder="act_XXXXXXXXXX" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">📍 Dapat dari URL adsmanager.facebook.com</div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Meta Access Token</label>
+            <input type="password" id="cp-token" placeholder="EAAVqTw..." style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">📍 Dapat dari developers.facebook.com → Graph API Explorer</div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Telegram Chat ID</label>
+            <input id="cp-chatid" placeholder="1234567890" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">📍 Start @userinfobot dalam Telegram untuk dapat Chat ID</div>
+          </div>
+        </div>
+        <button class="btn btn-dark" onclick="saveClientCredentials()">💾 Simpan & Aktifkan</button>
+      </div>
+
+      <!-- Change Password -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">🔒 Tukar Password</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Password Lama</label>
+            <input type="password" id="cp-old-pass" placeholder="Password semasa" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Password Baru</label>
+            <input type="password" id="cp-new-pass" placeholder="Minimum 8 aksara" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
+          </div>
+        </div>
+        <button class="btn btn-dark" onclick="saveClientPassword()">🔒 Tukar Password</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ============================================================
+// LOGIN SYSTEM
+// ============================================================
+
+// Users now loaded from API
+let currentUser = null;
+let currentClientId = null;
+
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  const btn = document.querySelector('.login-btn');
+
+  btn.textContent = 'Sedang log masuk...';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(API_URL + '/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({username, password: pass})
+    });
+    const result = await r.json();
+
+    if (r.ok) {
+      const u = result.user;
+      currentUser = u;
+      currentClientId = u.client_id || null;
+      sessionStorage.setItem('ezmeta_user', JSON.stringify(u));
+      err.style.display = 'none';
+      setupDashboard(u);
+    } else {
+      err.textContent = result.detail || 'Username atau password salah.';
+      err.style.display = 'block';
+      document.getElementById('login-pass').value = '';
+    }
+  } catch(e) {
+    // Fallback to hardcoded admin if API offline
+    const ADMINS = {
+      "admin": {username:"admin", name:"Admin EZMeta", role:"admin", isAdmin:true, client_id:null, avatar:"AD"},
+      "pokcik": {username:"pokcik", name:"Muhammad Al Hafiz", role:"admin", isAdmin:true, client_id:null, avatar:"MH"}
+    };
+    const PASSWORDS = {"admin":"ezmeta2026","pokcik":"ezmeta123"};
+    const u_key = username.toLowerCase();
+    if (ADMINS[u_key] && PASSWORDS[u_key] === pass) {
+      const u = ADMINS[u_key];
+      currentUser = u;
+      sessionStorage.setItem('ezmeta_user', JSON.stringify(u));
+      err.style.display = 'none';
+      setupDashboard(u);
+    } else {
+      err.textContent = 'Username atau password salah. (API offline)';
+      err.style.display = 'block';
+      document.getElementById('login-pass').value = '';
+    }
+  }
+
+  btn.textContent = 'Log Masuk →';
+  btn.disabled = false;
+}
+
+function setupDashboard(u) {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('dashboard-page').style.display = 'block';
+  document.getElementById('user-name').textContent = u.name;
+  document.getElementById('user-role').textContent = u.isAdmin ? 'Administrator' : (u.plan || 'Client') + ' Plan';
+  document.getElementById('user-avatar').textContent = u.avatar || u.name?.slice(0,2).toUpperCase() || 'CL';
+
+  if (u.isAdmin) {
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.client-only').forEach(el => el.style.display = 'none');
+    document.getElementById('client-switcher').style.display = 'block';
+    loadClientsTab();
+    loadData();
+  } else {
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.client-only').forEach(el => el.style.display = 'block');
+    document.getElementById('client-switcher').style.display = 'none';
+    currentClientId = u.client_id;
+    loadClientData(u.client_id);
+    showClientWelcome(u);
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('ezmeta_user');
+  document.getElementById('dashboard-page').style.display = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+// Check if already logged in
+window.onload = function() {
+  const saved = sessionStorage.getItem('ezmeta_user');
+  if (saved) {
+    const u = JSON.parse(saved);
+    currentUser = u;
+    currentClientId = u.client_id || null;
+    setupDashboard(u);
+  }
+  document.getElementById('si-date').value = new Date().toISOString().split('T')[0];
+};
+
+// ============================================================
+// SALES DATA (stored in memory + localStorage)
+// ============================================================
+
+let salesEntries = JSON.parse(localStorage.getItem('ezmeta_sales') || '[]');
+
+function saveSalesEntry() {
+  const campEl = document.getElementById('si-campaign');
+  const campaign = campEl.value;
+  const campName = campEl.options[campEl.selectedIndex]?.text || '';
+  const date = document.getElementById('si-date').value;
+  const pm = parseInt(document.getElementById('si-pm').value) || 0;
+  const closing = parseInt(document.getElementById('si-closing').value) || 0;
+  const amount = parseFloat(document.getElementById('si-amount').value) || 0;
+  const note = document.getElementById('si-note').value;
+
+  if (!campaign || !date || pm === 0) {
+    showToast('⚠️ Sila isi campaign, tarikh dan jumlah PM');
+    return;
+  }
+
+  const entry = {
+    id: Date.now(),
+    campaign_id: campaign,
+    campaign_name: campName,
+    date, pm, closing, amount, note,
+    created_at: new Date().toISOString()
+  };
+
+  salesEntries.push(entry);
+  localStorage.setItem('ezmeta_sales', JSON.stringify(salesEntries));
+
+  document.getElementById('si-pm').value = '';
+  document.getElementById('si-closing').value = '';
+  document.getElementById('si-amount').value = '';
+  document.getElementById('si-note').value = '';
+
+  renderSales();
+  showToast('✅ Sales entry disimpan!');
+}
+
+function renderSales() {
+  if (!D) return;
+
+  // Calculate per campaign
+  const campMap = {};
+  salesEntries.forEach(e => {
+    if (!campMap[e.campaign_id]) {
+      campMap[e.campaign_id] = { name: e.campaign_name, pm: 0, closing: 0, revenue: 0 };
+    }
+    campMap[e.campaign_id].pm += e.pm;
+    campMap[e.campaign_id].closing += e.closing;
+    campMap[e.campaign_id].revenue += e.amount;
+  });
+
+  // Overall stats
+  const totalPM = Object.values(campMap).reduce((s,c) => s+c.pm, 0);
+  const totalClosing = Object.values(campMap).reduce((s,c) => s+c.closing, 0);
+  const totalRevenue = Object.values(campMap).reduce((s,c) => s+c.revenue, 0);
+  const totalSpend = D.stats.total_spend_rm;
+  const trueRoas = totalSpend > 0 ? (totalRevenue / totalSpend).toFixed(2) : 0;
+  const closingRate = totalPM > 0 ? ((totalClosing / totalPM) * 100).toFixed(1) : 0;
+
+  document.getElementById('st-pm').textContent = totalPM || '—';
+  document.getElementById('st-closing').textContent = totalClosing || '—';
+  document.getElementById('st-revenue').textContent = totalRevenue ? `RM ${totalRevenue.toFixed(2)}` : '—';
+  document.getElementById('st-troas').textContent = trueRoas ? `${trueRoas}×` : '—';
+  document.getElementById('st-rate').textContent = closingRate ? `${closingRate}% closing rate` : 'Belum ada data';
+  document.getElementById('s-true-roas').textContent = trueRoas ? `${trueRoas}×` : '—';
+
+  // Compare table
+  const tbody = document.getElementById('sales-compare-table');
+  tbody.innerHTML = D.campaigns.map(c => {
+    const cs = campMap[c.id] || { pm: 0, closing: 0, revenue: 0 };
+    const spendRm = c.spend_today / 100;
+    const troas = cs.revenue > 0 && spendRm > 0 ? (cs.revenue / spendRm).toFixed(2) : null;
+    const diff = troas ? (parseFloat(troas) - c.roas).toFixed(2) : null;
+    const rate = cs.pm > 0 ? ((cs.closing / cs.pm) * 100).toFixed(1) : null;
+    const costClose = cs.closing > 0 ? (spendRm / cs.closing).toFixed(2) : null;
+
+    return `<tr>
+      <td><div class="cn">${c.name}</div></td>
+      <td><span class="mono">${c.roas}×</span></td>
+      <td><span class="mono ${troas ? (parseFloat(troas) >= c.roas ? 'vg' : 'vb') : ''}">${troas ? troas+'×' : '—'}</span></td>
+      <td><span class="mono ${diff ? (parseFloat(diff) >= 0 ? 'vg' : 'vb') : ''}">${diff ? (parseFloat(diff) >= 0 ? '+' : '')+diff+'×' : '—'}</span></td>
+      <td class="mono">${cs.pm || '—'}</td>
+      <td class="mono">${cs.closing || '—'}</td>
+      <td><span class="mono ${rate ? (parseFloat(rate) >= 20 ? 'vg' : parseFloat(rate) >= 10 ? 'vw' : 'vb') : ''}">${rate ? rate+'%' : '—'}</span></td>
+      <td class="mono">${costClose ? 'RM '+costClose : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  // History table
+  const hist = document.getElementById('sales-history');
+  const sorted = [...salesEntries].sort((a,b) => new Date(b.date) - new Date(a.date));
+  hist.innerHTML = sorted.slice(0, 20).map(e => {
+    const rate = e.pm > 0 ? ((e.closing / e.pm) * 100).toFixed(1) : 0;
+    return `<tr>
+      <td class="mono">${e.date}</td>
+      <td><div class="cn">${e.campaign_name}</div>${e.note ? `<div class="ci">${e.note}</div>` : ''}</td>
+      <td class="mono">${e.pm}</td>
+      <td class="mono">${e.closing}</td>
+      <td class="mono vg">RM ${e.amount.toFixed(2)}</td>
+      <td><span class="mono ${parseFloat(rate) >= 20 ? 'vg' : parseFloat(rate) >= 10 ? 'vw' : 'vb'}">${rate}%</span></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">Belum ada sales entry. Input sales di atas!</td></tr>';
+}
+
+// Populate campaign dropdown
+function populateCampaignDropdown() {
+  if (!D) return;
+  const sel = document.getElementById('si-campaign');
+  sel.innerHTML = '<option value="">Pilih campaign...</option>' +
+    D.campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+// ============================================================
+// MAIN DATA — Load from API Server
+// ============================================================
+
+const API_URL = 'https://web-production-541aa.up.railway.app';
+let D = null, C1 = null;
+
+async function loadData() {
+  try {
+    const r = await fetch(API_URL + '/data?t=' + Date.now());
+    if (!r.ok) throw new Error('Server not responding');
+    D = await r.json();
+    renderAll();
+    document.getElementById('sync-time').textContent = '⟳ ' + new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    try {
+      const r2 = await fetch('ezmeta_data.json?t=' + Date.now());
+      if (!r2.ok) throw new Error();
+      D = await r2.json();
+      renderAll();
+      showToast('⚠️ API offline — guna cached data');
+    } catch(e2) {
+      showToast('⚠️ Start API: python3 -X utf8 -m uvicorn ezmeta_server:app --port 8888');
+    }
+  }
+}
+
+async function refreshData() {
+  showToast('🔄 Scanning...');
+  await loadData();
+}
+
+async function executeAction(type, campaignId, newBudget = null) {
+  try {
+    const body = { type, campaign_id: campaignId };
+    if (newBudget) body.new_budget = newBudget;
+    const r = await fetch(API_URL + '/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const result = await r.json();
+    if (r.ok) { showToast('✅ ' + result.message); setTimeout(loadData, 2000); }
+    else showToast('⚠️ ' + (result.detail || 'Action failed'));
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+async function saveConfigToAPI(data) {
+  try {
+    const r = await fetch(API_URL + '/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return r.ok;
+  } catch(e) { return false; }
+}
+
+async function testTelegramAPI() {
+  try {
+    const r = await fetch(API_URL + '/telegram/test', { method: 'POST' });
+    const result = await r.json();
+    if (r.ok) showToast('✅ Test alert dihantar ke Telegram!');
+    else showToast('⚠️ ' + (result.detail || 'Failed'));
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+function renderAll() {
+  if (!D) return;
+  renderMeta(); renderStats(); renderChart();
+  renderAIQueue(); renderFullFeed();
+  renderHealth(); renderBudget(); renderWinners(); renderFatigue();
+  renderAlerts(); renderReports();
+  updateCampaigns();
+  populateCampaignDropdown();
+  renderSales();
+}
+
+function renderMeta() {
+  const t = new Date(D.generated_at);
+  const ts = t.toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'});
+  const ds = t.toLocaleDateString('ms-MY',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('pg-sub').textContent = ds + ' — EZMeta Engine v2.0';
+  document.getElementById('sync-time').textContent = '⟳ ' + ts;
+  document.getElementById('last-scan').textContent = 'Updated: ' + ts;
+  document.getElementById('rec-nb').textContent = D.recommendations.length;
+  document.getElementById('alt-nb').textContent = D.alerts.length;
+  document.getElementById('bgt-nb').textContent = D.budget_alerts.length;
+  document.getElementById('alt-badge2').textContent = D.alerts.length + ' alerts';
+  document.getElementById('bgt-badge2').textContent = D.budget_alerts.length + ' campaigns';
+  document.getElementById('win-badge2').textContent = D.winners.length + ' detected';
+  document.getElementById('fat-badge2').textContent = D.fatigued.length + ' detected';
+  document.getElementById('active-badge').textContent = D.stats.active_campaigns + ' Active';
+  if (D.mode === 'LIVE') {
+    document.getElementById('mdot').classList.add('live');
+    document.getElementById('mlbl').textContent = 'LIVE MODE';
+    document.getElementById('dbadge').textContent = 'LIVE';
+    document.getElementById('dbadge').className = 'badge b-green';
+  }
+}
+
+function renderStats() {
+  const s = D.stats;
+  document.getElementById('s-spend').textContent = 'RM ' + s.total_spend_rm.toFixed(2);
+  document.getElementById('s-budget-pct').textContent = s.monthly_pct_used + '% budget bulanan';
+  document.getElementById('s-roas').textContent = s.avg_roas + '×';
+  document.getElementById('s-conv').textContent = s.total_conversions;
+  document.getElementById('s-clicks').textContent = s.total_clicks.toLocaleString() + ' clicks';
+  const total = D.recommendations.length + D.winners.length + D.fatigued.length;
+  document.getElementById('s-actions').textContent = total;
+  document.getElementById('s-actions-sub').textContent = D.recommendations.length + ' rec · ' + D.winners.length + ' win · ' + D.fatigued.length + ' fat';
+}
+
+function renderChart() {
+  const lb = D.chart_data.map(d => d.date);
+  const sp = D.chart_data.map(d => d.spend);
+  const ro = D.chart_data.map(d => d.roas);
+  if (C1) C1.destroy();
+  C1 = new Chart(document.getElementById('chart1'), {
+    type:'line', data:{labels:lb, datasets:[
+      {label:'Spend',data:sp,borderColor:'#0066ff',backgroundColor:'rgba(0,102,255,.05)',tension:.4,pointRadius:3,fill:true,yAxisID:'y'},
+      {label:'ROAS',data:ro,borderColor:'#00875a',backgroundColor:'transparent',tension:.4,pointRadius:3,borderDash:[4,4],yAxisID:'y1'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1916',titleColor:'#fff',bodyColor:'#aaa',titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:11}}},
+      scales:{x:{grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#8a8780',font:{size:10,family:'JetBrains Mono'}}},
+        y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#8a8780',font:{size:10,family:'JetBrains Mono'}},position:'left'},
+        y1:{grid:{display:false},ticks:{color:'#00875a',font:{size:10,family:'JetBrains Mono'}},position:'right'}}}
+  });
+}
+
+function icon(t){return t==='PAUSE'?'⏸':t==='SCALE'?'🚀':t==='FREQUENCY_WARNING'?'⚠️':'💡';}
+function label(t){return t==='PAUSE'?'Cadangan Pause':t==='SCALE'?'Scale Budget':t==='FREQUENCY_WARNING'?'Frequency Warning':'Insight';}
+
+function aiCard(r,id){
+  const applyFn = r.type === 'PAUSE'
+    ? `applyAIAction('${id}','${r.type}','${r.campaign_id}')`
+    : r.type === 'SCALE'
+    ? `applyAIAction('${id}','${r.type}','${r.campaign_id}',${r.new_budget || 0})`
+    : `doAction('${id}','✓ Noted')`;
+  return `<div class="ai-item t${r.type}" id="${id}">
+    <div class="ai-icon">${icon(r.type)}</div>
+    <div class="ai-body">
+      <div class="ai-type">${label(r.type)}</div>
+      <div class="ai-msg">${r.campaign_name} — ${r.reason}</div>
+      <div class="ai-meta">${r.detail} · Confidence: ${r.confidence}%</div>
+      <div class="ai-acts">
+        <button class="mini-btn primary" onclick="${applyFn}">Apply</button>
+        <button class="mini-btn" onclick="dismiss('${id}')">Skip</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function applyAIAction(id, type, campaignId, newBudget = null) {
+  doAction(id, '⏳ Executing...');
+  await executeAction(type, campaignId, newBudget);
+}
+
+function renderAIQueue(){
+  document.getElementById('q-count').textContent = D.recommendations.length + ' pending';
+  document.getElementById('ai-queue').innerHTML = D.recommendations.slice(0,3).map((r,i)=>aiCard(r,'q'+i)).join('');
+}
+
+function renderFullFeed(){
+  document.getElementById('full-feed').innerHTML = D.recommendations.map((r,i)=>aiCard(r,'f'+i)).join('');
+}
+
+function gradeColor(g){return g==='A'?'var(--green)':g==='B'?'var(--accent)':g==='C'?'var(--amber)':'var(--red)';}
+
+function renderHealth(){
+  document.getElementById('health-grid').innerHTML = D.campaigns.map(c => {
+    const h = D.health_scores[c.id];
+    if(!h) return '';
+    const bk = h.breakdown;
+    return `<div class="health-card">
+      <div class="health-grade grade-${h.grade}">${h.grade}</div>
+      <div class="health-name">${c.name}</div>
+      <div class="health-score">${h.total}/100</div>
+      <div class="health-bar-bg"><div class="health-bar-fill" style="width:${h.total}%;background:${gradeColor(h.grade)};"></div></div>
+      <div class="health-breakdown">${Object.entries(bk).map(([k,v])=>`
+        <div class="hb-row"><span class="hb-lbl">${k}</span>
+        <span class="hb-val ${v.score/v.max>=.7?'hb-good':v.score/v.max>=.4?'hb-mid':'hb-bad'}">${v.value} — ${v.status}</span></div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function budgetItem(a,preview=false){
+  const bar=Math.min(a.pct_used,100);
+  return `<div class="budget-item ${a.level}">
+    <div class="budget-hd"><span class="budget-name">${a.campaign_name}</span><span class="budget-pct">${a.pct_used}%</span></div>
+    <div class="budget-bar-bg"><div class="budget-bar-fill" style="width:${bar}%;"></div></div>
+    ${!preview?`<div class="budget-sub">${a.message}</div><div class="budget-sub" style="margin-top:3px;">💡 ${a.suggestion}</div>`:`<div class="budget-sub">${a.suggestion}</div>`}
+  </div>`;
+}
+
+function renderBudget(){
+  document.getElementById('bgt-badge').textContent = D.budget_alerts.length + ' alerts';
+  document.getElementById('budget-preview').innerHTML = D.budget_alerts.slice(0,2).map(a=>budgetItem(a,true)).join('') || '<div style="font-size:12px;color:var(--muted);padding:8px;">✅ Budget okay</div>';
+  document.getElementById('full-budget').innerHTML = D.budget_alerts.map(a=>budgetItem(a)).join('') || '<div style="font-size:12px;color:var(--muted);padding:8px;">✅ Semua budget dalam kawalan</div>';
+}
+
+function winnerItem(w,preview=false){
+  return `<div class="winner-item">
+    <div class="winner-hd"><span class="winner-name">${w.campaign_name}</span><span class="winner-score">Score ${w.score}/100</span></div>
+    <div class="winner-reasons">${w.reasons.map(r=>`<span class="reason-tag">${r}</span>`).join('')}</div>
+    ${!preview?`<div class="winner-rec">💡 ${w.recommendation}</div>`:''}
+  </div>`;
+}
+
+function renderWinners(){
+  document.getElementById('win-badge').textContent = D.winners.length + ' detected';
+  document.getElementById('winner-preview').innerHTML = D.winners.slice(0,2).map(w=>winnerItem(w,true)).join('') || '<div style="font-size:12px;color:var(--muted);padding:8px;">Tiada winning ad</div>';
+  document.getElementById('full-winners').innerHTML = D.winners.map(w=>winnerItem(w)).join('') || '<div style="font-size:12px;color:var(--muted);padding:8px;">Tiada winning ad</div>';
+}
+
+function fatigueItem(f,preview=false){
+  return `<div class="fatigue-item ${f.severity}">
+    <div class="fatigue-hd"><span class="fatigue-name">${f.campaign_name}</span><span class="fatigue-sev">${f.severity}</span></div>
+    <div class="fatigue-signals">${(preview?f.signals.slice(0,1):f.signals).map(s=>`<div class="signal-row">${s}</div>`).join('')}</div>
+    ${!preview?`<div class="fatigue-rec">⚡ ${f.recommendation}</div>`:''}
+  </div>`;
+}
+
+function renderFatigue(){
+  document.getElementById('fat-badge').textContent = D.fatigued.length + ' detected';
+  document.getElementById('fatigue-preview').innerHTML = D.fatigued.slice(0,2).map(f=>fatigueItem(f,true)).join('') || '<div style="font-size:12px;color:var(--muted);padding:8px;">✅ Tiada creative fatigue</div>';
+  document.getElementById('full-fatigue').innerHTML = D.fatigued.map(f=>fatigueItem(f)).join('') || '<div style="font-size:12px;color:var(--muted);padding:8px;">✅ Semua creative fresh</div>';
+}
+
+function renderAlerts(){
+  document.getElementById('all-alerts').innerHTML = D.alerts.map(a=>`
+    <div class="alert-item ${a.level}"><div class="alert-dot"></div>
+    <div class="alert-txt">${a.message}</div>
+    <div class="alert-time">${a.time}</div></div>`).join('');
+}
+
+function renderReports(){
+  document.getElementById('daily-report').textContent = D.report;
+  document.getElementById('weekly-report').textContent = D.weekly_report;
+}
+
+function updateCampaigns(){
+  document.getElementById('all-camps').innerHTML = D.campaigns.map(c => {
+    const h = D.health_scores[c.id];
+    const gr = h ? h.grade : '?';
+    const rc = c.roas>=4?'vg':c.roas<2?'vb':'';
+    const cc = c.ctr>=3?'vg':c.ctr<1?'vb':'';
+    return `<tr>
+      <td><div class="cn">${c.name}</div><div class="ci">${c.id}</div></td>
+      <td><span class="pill p${c.status[0]}">${c.status}</span></td>
+      <td class="mono">RM ${(c.daily_budget/100).toFixed(0)}</td>
+      <td class="mono">RM ${(c.spend_today/100).toFixed(2)}</td>
+      <td><span class="mono ${rc}">${c.roas}×</span></td>
+      <td><span class="mono ${cc}">${c.ctr}%</span></td>
+      <td class="mono">RM ${(c.cpc/100).toFixed(2)}</td>
+      <td><span class="badge ${gr==='A'?'b-green':gr==='B'?'b-blue':gr==='C'?'b-orange':'b-red'}">${gr} ${h?h.total:0}/100</span></td>
+    </tr>`;
+  }).join('');
+}
+
+const tabTitles = {overview:'Overview',campaigns:'Campaigns',ai:'AI Feed',health:'Health Score',budget:'Budget Tracker',winners:'Winning Ads',fatigue:'Creative Fatigue',sales:'Sales Tracker',alerts:'Alerts',report:'Daily Report',weekly:'Weekly Report',settings:'Settings',clients:'Client Management',revenue:'Revenue',myprofile:'Profil & Setup'};
+
+function goTab(e, id) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  document.getElementById('pg-title').textContent = tabTitles[id]||id;
+  if (id === 'settings') loadConfig();
+  if (id === 'clients') loadClientsTab();
+  if (id === 'revenue') loadRevenueTab();
+  if (id === 'myprofile') loadMyProfile();
+}
+
+function loadMyProfile() {
+  if (!currentUser) return;
+  document.getElementById('cp-name').textContent = currentUser.name || '—';
+  document.getElementById('cp-plan').textContent = currentUser.plan || 'STARTER';
+  document.getElementById('cp-biz').textContent = currentUser.business || '—';
+}
+
+async function saveClientCredentials() {
+  if (!currentUser?.client_id) { showToast('⚠️ Client ID tidak dijumpai'); return; }
+  const accountId = document.getElementById('cp-account-id').value.trim();
+  const token = document.getElementById('cp-token').value.trim();
+  const chatId = document.getElementById('cp-chatid').value.trim();
+  if (!accountId && !token && !chatId) { showToast('⚠️ Sila isi sekurang-kurangnya satu field'); return; }
+  try {
+    const updates = {};
+    if (accountId) updates.ad_account_id = accountId;
+    if (token) updates.access_token = token;
+    if (chatId) updates.chat_id = chatId;
+    const r = await fetch(`${API_URL}/clients/${currentUser.client_id}/update-credentials`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(updates)
+    });
+    const result = await r.json();
+    if (r.ok) {
+      showToast('✅ Credentials disimpan! EZMeta akan mula monitor ads anda.');
+      loadClientData(currentUser.client_id);
+    } else showToast('⚠️ ' + (result.detail||'Gagal simpan'));
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+async function saveClientPassword() {
+  if (!currentUser?.client_id) return;
+  const oldPass = document.getElementById('cp-old-pass').value;
+  const newPass = document.getElementById('cp-new-pass').value;
+  if (!oldPass || !newPass) { showToast('⚠️ Sila isi kedua-dua field'); return; }
+  if (newPass.length < 8) { showToast('⚠️ Password minimum 8 aksara'); return; }
+  try {
+    const r = await fetch(`${API_URL}/auth/change-password?client_id=${currentUser.client_id}&old_password=${encodeURIComponent(oldPass)}&new_password=${encodeURIComponent(newPass)}`, {method:'POST'});
+    const result = await r.json();
+    if (r.ok) { showToast('✅ Password berjaya ditukar!'); document.getElementById('cp-old-pass').value=''; document.getElementById('cp-new-pass').value=''; }
+    else showToast('⚠️ ' + (result.detail||'Gagal'));
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+function doAction(id, msg) {
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.style.opacity='.4'; el.style.pointerEvents='none';
+  const d=document.createElement('div');
+  d.style.cssText='font-size:11px;color:var(--green);font-family:JetBrains Mono,monospace;margin-top:4px;font-weight:600;';
+  d.textContent=msg; el.querySelector('.ai-body').appendChild(d);
+  showToast(msg);
+}
+
+function dismiss(id) {
+  const el=document.getElementById(id);
+  if(el){el.style.opacity='.3';el.style.pointerEvents='none';}
+}
+
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.transform='translateY(0)'; t.style.opacity='1';
+  setTimeout(()=>{t.style.transform='translateY(60px)';t.style.opacity='0';},2500);
+}
+
+// ============================================================
+// CLIENT VIEW
+// ============================================================
+
+async function loadClientData(clientId) {
+  try {
+    const r = await fetch(API_URL + `/data?client_id=${clientId}&t=` + Date.now());
+    if (!r.ok) throw new Error();
+    D = await r.json();
+    renderAll();
+    document.getElementById('sync-time').textContent = '⟳ ' + new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    try {
+      const r2 = await fetch('ezmeta_data.json?t=' + Date.now());
+      D = await r2.json();
+      renderAll();
+    } catch(e2) {
+      showToast('⚠️ Gagal load data');
+    }
+  }
+}
+
+function showClientWelcome(u) {
+  // Check if using temp password - show change password prompt
+  setTimeout(() => {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:32px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+        <div style="font-size:20px;font-weight:800;margin-bottom:8px;">Selamat datang, ${u.name}! 👋</div>
+        <div style="font-size:13px;color:#8a8780;margin-bottom:24px;">Anda menggunakan password sementara. Sila tukar password untuk keselamatan.</div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Password Sementara</label>
+          <input type="password" id="wp-old" placeholder="Password yang diterima" style="width:100%;padding:10px 12px;border:1px solid #e8e6e0;border-radius:8px;font-size:13px;outline:none;" />
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Password Baru</label>
+          <input type="password" id="wp-new" placeholder="Minimum 8 aksara" style="width:100%;padding:10px 12px;border:1px solid #e8e6e0;border-radius:8px;font-size:13px;outline:none;" />
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button onclick="changePassword('${u.client_id}')" style="flex:1;padding:11px;background:#1a1916;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Tukar Password</button>
+          <button onclick="this.closest('div[style*=fixed]').remove()" style="padding:11px 20px;background:#f5f4f0;border:1px solid #e8e6e0;border-radius:8px;font-size:14px;cursor:pointer;">Skip</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+  }, 1500);
+}
+
+async function changePassword(clientId) {
+  const oldPass = document.getElementById('wp-old').value;
+  const newPass = document.getElementById('wp-new').value;
+  if (!oldPass || !newPass) { showToast('⚠️ Sila isi kedua-dua field'); return; }
+  if (newPass.length < 8) { showToast('⚠️ Password minimum 8 aksara'); return; }
+  try {
+    const r = await fetch(`${API_URL}/auth/change-password?client_id=${clientId}&old_password=${encodeURIComponent(oldPass)}&new_password=${encodeURIComponent(newPass)}`, { method: 'POST' });
+    const result = await r.json();
+    if (r.ok) {
+      showToast('✅ Password berjaya ditukar!');
+      document.querySelector('div[style*="position:fixed"][style*="inset:0"]')?.remove();
+    } else {
+      showToast('⚠️ ' + (result.detail || 'Gagal tukar password'));
+    }
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+// ============================================================
+// CLIENT MANAGEMENT
+// ============================================================
+
+let clientsData = [];
+
+async function loadClientsTab() {
+  try {
+    const [r, r2, r3] = await Promise.all([
+      fetch(API_URL + '/clients'),
+      fetch(API_URL + '/data/all'),
+      fetch(API_URL + '/clients/pending')
+    ]);
+    const data = await r.json();
+    const allData = await r2.json();
+    const pendingData = await r3.json();
+
+    clientsData = data.clients || [];
+    renderClientsGrid(clientsData.filter(c=>c.status!=='PENDING'&&c.status!=='REJECTED'));
+    updateClientSwitcher(clientsData);
+    document.getElementById('clients-nb').textContent = clientsData.filter(c=>c.status==='ACTIVE').length;
+    renderClientsStats(clientsData, allData);
+
+    // Render pending
+    const pending = pendingData.pending || [];
+    if (pending.length > 0) {
+      document.getElementById('pending-section').style.display = 'block';
+      document.getElementById('pending-badge').textContent = pending.length + ' pending';
+      document.getElementById('pending-list').innerHTML = pending.map(p => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size:13px;font-weight:600;">${p.name} — ${p.business||''}</div>
+            <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px;">
+              ${p.email||''} · ${p.phone||''} · <span class="badge b-blue">${p.plan}</span> RM ${p.monthly_fee_rm}/bln
+            </div>
+            ${p.notes?`<div style="font-size:11px;color:var(--muted);margin-top:2px;">💬 "${p.notes}"</div>`:''}
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0;">
+            <button class="mini-btn primary" onclick="approveClient('${p.id}','${p.name}')">✅ Approve</button>
+            <button class="mini-btn" onclick="rejectClient('${p.id}','${p.name}')">❌ Reject</button>
+          </div>
+        </div>`).join('');
+    } else {
+      document.getElementById('pending-section').style.display = 'none';
+    }
+  } catch(e) {
+    showToast('⚠️ Gagal load clients data');
+  }
+}
+
+async function approveClient(clientId, name) {
+  try {
+    const r = await fetch(API_URL + `/clients/${clientId}/approve`, { method: 'POST' });
+    const result = await r.json();
+    if (r.ok) {
+      showToast(`✅ ${name} diluluskan! Password: ${result.temp_password}`);
+      loadClientsTab();
+    } else showToast('⚠️ ' + (result.detail||'Gagal approve'));
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+async function rejectClient(clientId, name) {
+  const reason = prompt(`Sebab tolak permohonan ${name}? (optional)`)||'';
+  try {
+    const r = await fetch(API_URL + `/clients/${clientId}/reject?reason=${encodeURIComponent(reason)}`, { method: 'POST' });
+    if (r.ok) { showToast(`❌ ${name} ditolak`); loadClientsTab(); }
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+function renderClientsStats(clients, allData) {
+  const active = clients.filter(c=>c.status==='ACTIVE');
+  const mrr = active.reduce((s,c)=>s+(c.monthly_fee_rm||0),0);
+  document.getElementById('co-total').textContent = clients.length;
+  document.getElementById('co-active').textContent = active.length;
+  document.getElementById('co-mrr').textContent = 'RM '+mrr;
+  document.getElementById('co-camps').textContent = allData.total_campaigns || '—';
+}
+
+function planColor(plan) {
+  return plan==='PRO'?'b-blue':plan==='AGENCY'?'b-orange':'b-gray';
+}
+
+function renderClientsGrid(clients) {
+  const grid = document.getElementById('clients-grid');
+  if (!clients.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px;">Belum ada clients. Klik "Add Client Baru" untuk tambah!</div>';
+    return;
+  }
+
+  grid.innerHTML = clients.map(c => {
+    const isDemo = !c.access_token || c.access_token === 'LETAK_TOKEN_SINI' || c.access_token.startsWith('****');
+    const tokenBadge = isDemo
+      ? '<span class="token-status token-demo">DEMO</span>'
+      : '<span class="token-status token-ok">● Live</span>';
+    const fee = c.monthly_fee_rm || (c.plan==='STARTER'?49:c.plan==='PRO'?99:199);
+
+    return `<div class="client-card plan-${c.plan} status-${c.status}">
+      <div class="client-hd">
+        <div>
+          <div class="client-name">${c.name}</div>
+          <div class="client-biz">${c.business||'—'}</div>
+        </div>
+        <span class="badge ${planColor(c.plan)} client-plan">${c.plan}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        ${tokenBadge}
+        <span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;">${c.ad_account_id||'—'}</span>
+      </div>
+      <div class="client-stats">
+        <div class="client-stat">
+          <div class="client-stat-lbl">Fee/bulan</div>
+          <div class="client-stat-val" style="color:var(--accent);">RM ${fee}</div>
+        </div>
+        <div class="client-stat">
+          <div class="client-stat-lbl">Onboard</div>
+          <div class="client-stat-val" style="font-size:11px;">${c.onboard_date||'—'}</div>
+        </div>
+        <div class="client-stat">
+          <div class="client-stat-lbl">Telegram</div>
+          <div class="client-stat-val" style="font-size:10px;">${c.chat_id||'—'}</div>
+        </div>
+        <div class="client-stat">
+          <div class="client-stat-lbl">Status</div>
+          <div class="client-stat-val" style="font-size:11px;color:${c.status==='ACTIVE'?'var(--green)':'var(--red)'};">${c.status}</div>
+        </div>
+      </div>
+      ${c.notes?`<div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-style:italic;">${c.notes}</div>`:''}
+      <div class="client-actions">
+        <button class="mini-btn primary" onclick="viewClientData('${c.id}','${c.name}')">📊 View Data</button>
+        <button class="mini-btn" onclick="scanClient('${c.id}','${c.name}')">⚡ Scan</button>
+        <button class="mini-btn" onclick="editClient('${c.id}')">✏️ Edit</button>
+        <button class="mini-btn" onclick="removeClient('${c.id}','${c.name}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateClientSwitcher(clients) {
+  const sel = document.getElementById('client-select');
+  sel.innerHTML = '<option value="">-- Default (Config) --</option>' +
+    clients.filter(c=>c.status==='ACTIVE').map(c =>
+      `<option value="${c.id}">${c.name} — ${c.plan}</option>`
+    ).join('');
+}
+
+async function switchClient(clientId) {
+  currentClientId = clientId || null;
+  if (clientId) {
+    showToast(`📊 Loading data for client...`);
+    const r = await fetch(API_URL + `/data?client_id=${clientId}`);
+    D = await r.json();
+    renderAll();
+    showToast(`✅ Showing data for selected client`);
+  } else {
+    loadData();
+  }
+}
+
+async function viewClientData(clientId, name) {
+  showToast(`📊 Loading ${name} data...`);
+  const r = await fetch(API_URL + `/data?client_id=${clientId}`);
+  D = await r.json();
+  renderAll();
+  // Switch to overview
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-overview').classList.add('active');
+  document.getElementById('pg-title').textContent = `Overview — ${name}`;
+  showToast(`✅ Showing ${name} data`);
+}
+
+async function scanClient(clientId, name) {
+  showToast(`⚡ Scanning ${name}...`);
+  try {
+    const r = await fetch(API_URL + '/scan/all', { method: 'POST' });
+    const result = await r.json();
+    const cr = result.results?.find(r=>r.client_id===clientId);
+    if (cr) showToast(`✅ ${name}: ${cr.campaigns_scanned} campaigns, Telegram ${cr.telegram_sent?'sent':'failed'}`);
+    else showToast('✅ Scan complete');
+  } catch(e) { showToast('⚠️ Scan failed'); }
+}
+
+async function scanAllClients() {
+  showToast('⚡ Scanning all clients...');
+  try {
+    const r = await fetch(API_URL + '/scan/all', { method: 'POST' });
+    const result = await r.json();
+    showToast(`✅ ${result.scanned} clients scanned, Telegram alerts sent!`);
+    loadClientsTab();
+  } catch(e) { showToast('⚠️ Scan failed'); }
+}
+
+function generatePass() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  const pass = Array.from({length: 8}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  document.getElementById('nc-temppass').value = pass;
+  // Copy to clipboard
+  navigator.clipboard?.writeText(pass);
+  showToast('✅ Password: ' + pass + ' (copied!)');
+}
+
+function toggleAddForm() {
+  const form = document.getElementById('add-client-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+async function addNewClient() {
+  const name = document.getElementById('nc-name').value;
+  const biz = document.getElementById('nc-biz').value;
+  const plan = document.getElementById('nc-plan').value;
+  const account = '';
+  const chatId = '';
+  const phone = document.getElementById('nc-phone').value.trim();
+  const fee = parseFloat(document.getElementById('nc-fee').value) || (plan==='STARTER'?49:plan==='PRO'?99:199);
+  const notes = document.getElementById('nc-notes2')?.value || '';
+  const tempPass = document.getElementById('nc-temppass').value.trim();
+
+  if (!name) { showToast('⚠️ Nama wajib diisi'); return; }
+  const email2 = document.getElementById('nc-email').value.trim();
+  if (!email2) { showToast('⚠️ Email wajib diisi'); return; }
+  if (!phone) { showToast('⚠️ No. WhatsApp wajib diisi'); return; }
+  if (!tempPass || tempPass.length < 6) { showToast('⚠️ Password sementara wajib diisi. Klik 🔀 Auto!'); return; }
+
+  try {
+    const email = document.getElementById('nc-email').value.trim();
+    if (!email) { showToast('⚠️ Email wajib diisi — ini akan jadi username client'); return; }
+
+    const r = await fetch(API_URL + '/clients', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name, business: biz, plan,
+        email,
+        phone: phone,
+        access_token: 'LETAK_TOKEN_SINI',
+        ad_account_id: '',
+        chat_id: '',
+        monthly_fee_rm: fee,
+        notes: document.getElementById('nc-notes2').value,
+        temp_password: tempPass
+      })
+    });
+    const result = await r.json();
+    if (r.ok) {
+      // Show WhatsApp template for sending login details
+      const clientEmail = document.getElementById('nc-email')?.value || '';
+      const waMsg = `✅ Akaun EZMeta anda dah siap!
+
+👤 Nama: ${name}
+📦 Plan: ${plan} — RM ${fee}/bulan
+
+🔑 Login Dashboard:
+🌐 URL: https://ezmeta.github.io/dashboard
+📧 Username (Email): ${clientEmail}
+🔒 Password: ${tempPass}
+
+Selepas login, pergi tab "Profil & Setup" untuk:
+→ Update Ad Account ID
+→ Update Meta Access Token  
+→ Update Telegram Chat ID
+
+Ada masalah? WhatsApp saya terus 😊`;
+
+      const waURL = `https://wa.me/${phone}?text=${encodeURIComponent(waMsg)}`;
+
+      showToast(`✅ Client ${name} ditambah!`);
+      toggleAddForm();
+      ['nc-name','nc-biz','nc-email','nc-phone','nc-fee','nc-temppass','nc-notes2'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      loadClientsTab();
+
+      // Auto prompt to send WhatsApp
+      setTimeout(() => {
+        if (confirm(`Client ${name} berjaya ditambah!
+
+Hantar login details ke client via WhatsApp sekarang?`)) {
+          window.open(waURL, '_blank');
+        }
+      }, 500);
+    } else {
+      showToast('⚠️ Gagal tambah client: ' + (result.detail||''));
+    }
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+async function removeClient(clientId, name) {
+  if (!confirm(`Padam client "${name}"? Tindakan ini tidak boleh dibatalkan.`)) return;
+  try {
+    const r = await fetch(API_URL + `/clients/${clientId}`, { method: 'DELETE' });
+    if (r.ok) { showToast(`✅ Client ${name} dipadam`); loadClientsTab(); }
+    else showToast('⚠️ Gagal padam client');
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+function editClient(clientId) {
+  const client = clientsData.find(c=>c.id===clientId);
+  if (!client) return;
+  // Pre-fill add form with client data
+  document.getElementById('add-client-form').style.display = 'block';
+  document.getElementById('nc-name').value = client.name || '';
+  document.getElementById('nc-biz').value = client.business || '';
+  document.getElementById('nc-plan').value = client.plan || 'STARTER';
+  document.getElementById('nc-account').value = client.ad_account_id || '';
+  document.getElementById('nc-chatid').value = client.chat_id || '';
+  document.getElementById('nc-fee').value = client.monthly_fee_rm || '';
+  document.getElementById('nc-notes').value = client.notes || '';
+  document.getElementById('nc-temppass').value = client.temp_password || '';
+  showToast('📝 Edit client — update dan simpan semula');
+}
+
+// ============================================================
+// REVENUE TAB
+// ============================================================
+
+async function loadRevenueTab() {
+  try {
+    const r = await fetch(API_URL + '/clients');
+    const data = await r.json();
+    const clients = data.clients || [];
+    const active = clients.filter(c=>c.status==='ACTIVE');
+
+    const mrr = active.reduce((s,c)=>s+(c.monthly_fee_rm||0),0);
+    const arr = mrr * 12;
+    const avg = active.length > 0 ? mrr/active.length : 0;
+
+    document.getElementById('rv-mrr').textContent = 'RM '+mrr;
+    document.getElementById('rv-arr').textContent = 'RM '+arr;
+    document.getElementById('rv-clients').textContent = active.length;
+    document.getElementById('rv-avg').textContent = 'RM '+avg.toFixed(0);
+
+    // By plan
+    const plans = {STARTER:{count:0,mrr:0,rate:49},PRO:{count:0,mrr:0,rate:99},AGENCY:{count:0,mrr:0,rate:199}};
+    active.forEach(c=>{
+      const p = c.plan||'STARTER';
+      if(plans[p]){plans[p].count++;plans[p].mrr+=(c.monthly_fee_rm||plans[p].rate);}
+    });
+    document.getElementById('rv-by-plan').innerHTML = Object.entries(plans).map(([plan,d])=>`
+      <tr>
+        <td><span class="badge ${planColor(plan)}">${plan}</span></td>
+        <td class="mono">${d.count}</td>
+        <td class="mono">RM ${d.rate}/bln</td>
+        <td class="mono vg">RM ${d.mrr}</td>
+      </tr>`).join('');
+
+    document.getElementById('rv-client-list').innerHTML = active.map(c=>`
+      <tr>
+        <td><div class="cn">${c.name}</div><div class="ci">${c.business||''}</div></td>
+        <td><span class="badge ${planColor(c.plan)}">${c.plan}</span></td>
+        <td class="mono vg">RM ${c.monthly_fee_rm||0}</td>
+        <td><span class="badge b-green">${c.status}</span></td>
+      </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">Belum ada clients</td></tr>';
+
+    // P&L
+    const opsCost = 13;
+    const profit = mrr - opsCost;
+    document.getElementById('rv-pnl').innerHTML = `
+      <tr><td>💰 Total MRR</td><td class="mono vg">RM ${mrr}</td><td style="color:var(--muted);font-size:11px;">${active.length} clients × avg RM ${avg.toFixed(0)}</td></tr>
+      <tr><td>☁️ Ops Cost</td><td class="mono vb">- RM ${opsCost}</td><td style="color:var(--muted);font-size:11px;">Meta API free + Claude API ~RM 5 + Domain ~RM 8</td></tr>
+      <tr style="font-weight:600;"><td>✅ Net Profit</td><td class="mono vg">RM ${profit}</td><td style="color:var(--muted);font-size:11px;">Margin ${mrr>0?((profit/mrr)*100).toFixed(0):0}%</td></tr>
+      <tr><td>📈 Target 10 clients</td><td class="mono" style="color:var(--accent);">RM ${10*avg.toFixed(0)-opsCost}</td><td style="color:var(--muted);font-size:11px;">Est. profit dengan 10 clients</td></tr>
+      <tr><td>🚀 Target 50 clients</td><td class="mono" style="color:var(--purple);">RM ${50*avg.toFixed(0)-opsCost}</td><td style="color:var(--muted);font-size:11px;">Est. profit dengan 50 clients</td></tr>`;
+
+  } catch(e) { showToast('⚠️ Gagal load revenue data'); }
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+
+const CFG_KEY = 'ezmeta_config';
+
+function getConfig() {
+  return JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
+}
+
+function saveConfig(updates) {
+  const cfg = { ...getConfig(), ...updates };
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  return cfg;
+}
+
+function loadConfig() {
+  const cfg = getConfig();
+  const preview = document.getElementById('config-preview');
+  const display = {
+    mode: cfg.mode || 'DEMO',
+    ad_account_id: cfg.account_id || 'Belum set',
+    access_token: cfg.token ? '****' + cfg.token.slice(-8) : 'Belum set',
+    telegram_chat_id: cfg.chat_id || 'Belum set',
+    bot_token: cfg.bot_token ? '****' + cfg.bot_token.slice(-6) : 'Belum set',
+    pause_ctr_threshold: cfg.pause_ctr || '1.0',
+    scale_roas_threshold: cfg.scale_roas || '4.0',
+    frequency_alert: cfg.freq_alert || '3.5',
+    budget_warning_pct: cfg.budget_warn || '80',
+    scale_budget_pct: cfg.scale_pct || '20',
+    max_daily_budget: 'RM ' + (cfg.max_budget || '200'),
+    scan_times: `${cfg.time1||'08:00'}, ${cfg.time2||'14:00'}, ${cfg.time3||'21:00'}`,
+  };
+  preview.textContent = JSON.stringify(display, null, 2);
+
+  // Load values into form fields
+  if (cfg.mode) document.getElementById('cfg-mode').value = cfg.mode;
+  if (cfg.account_id) document.getElementById('cfg-account').value = cfg.account_id;
+  if (cfg.chat_id) document.getElementById('cfg-chat-id').value = cfg.chat_id;
+  if (cfg.pause_ctr) document.getElementById('cfg-pause-ctr').value = cfg.pause_ctr;
+  if (cfg.scale_roas) document.getElementById('cfg-scale-roas').value = cfg.scale_roas;
+  if (cfg.freq_alert) document.getElementById('cfg-freq').value = cfg.freq_alert;
+  if (cfg.budget_warn) document.getElementById('cfg-budget-warn').value = cfg.budget_warn;
+  if (cfg.scale_pct) document.getElementById('cfg-scale-pct').value = cfg.scale_pct;
+  if (cfg.max_budget) document.getElementById('cfg-max-budget').value = cfg.max_budget;
+  if (cfg.time1) document.getElementById('cfg-time1').value = cfg.time1;
+  if (cfg.time2) document.getElementById('cfg-time2').value = cfg.time2;
+  if (cfg.time3) document.getElementById('cfg-time3').value = cfg.time3;
+}
+
+function saveProfile() {
+  const name = document.getElementById('cfg-name').value;
+  const pass = document.getElementById('cfg-pass').value;
+  if (!name) { showToast('⚠️ Masukkan nama'); return; }
+  saveConfig({ profile_name: name });
+  document.getElementById('user-name').textContent = name;
+  if (pass) showToast('✅ Profile & password dikemaskini!');
+  else showToast('✅ Profile disimpan!');
+}
+
+async function saveApiSettings() {
+  const token = document.getElementById('cfg-token').value;
+  const account = document.getElementById('cfg-account').value;
+  const mode = document.getElementById('cfg-mode').value;
+  if (!account) { showToast('⚠️ Masukkan Ad Account ID'); return; }
+  saveConfig({ token, account_id: account, mode });
+  const ok = await saveConfigToAPI({ access_token: token, ad_account_id: account, mode });
+  document.getElementById('mlbl').textContent = mode === 'LIVE' ? 'LIVE MODE' : 'DEMO MODE';
+  if (mode === 'LIVE') document.getElementById('mdot').classList.add('live');
+  else document.getElementById('mdot').classList.remove('live');
+  showToast(ok ? '✅ API Settings disimpan ke server!' : '✅ Disimpan locally (API offline)');
+  await loadData();
+}
+
+async function saveTelegramSettings() {
+  const botToken = document.getElementById('cfg-bot-token').value;
+  const chatId = document.getElementById('cfg-chat-id').value;
+  if (!chatId) { showToast('⚠️ Masukkan Chat ID'); return; }
+  saveConfig({ bot_token: botToken, chat_id: chatId });
+  const ok = await saveConfigToAPI({ bot_token: botToken, chat_id: chatId });
+  showToast(ok ? '✅ Telegram disimpan ke server!' : '✅ Disimpan locally');
+}
+
+async function testTelegram() {
+  await testTelegramAPI();
+}
+
+function saveAiRules() {
+  saveConfig({
+    pause_ctr: document.getElementById('cfg-pause-ctr').value || '1.0',
+    scale_roas: document.getElementById('cfg-scale-roas').value || '4.0',
+    freq_alert: document.getElementById('cfg-freq').value || '3.5',
+    budget_warn: document.getElementById('cfg-budget-warn').value || '80',
+    scale_pct: document.getElementById('cfg-scale-pct').value || '20',
+    max_budget: document.getElementById('cfg-max-budget').value || '200',
+  });
+  showToast('✅ AI Rules disimpan!');
+}
+
+function saveSchedule() {
+  saveConfig({
+    time1: document.getElementById('cfg-time1').value,
+    time2: document.getElementById('cfg-time2').value,
+    time3: document.getElementById('cfg-time3').value,
+  });
+  const t1 = document.getElementById('cfg-time1').value;
+  const t2 = document.getElementById('cfg-time2').value;
+  const t3 = document.getElementById('cfg-time3').value;
+  document.getElementById('config-preview').textContent =
+    `# Update dalam scheduler_v2.py:\nRUN_TIMES = [\n    "${t1}",\n    "${t2}",\n    "${t3}",\n]`;
+  showToast('✅ Jadual disimpan!');
+}
+
+function exportConfig() {
+  const cfg = getConfig();
+  const safe = { ...cfg };
+  if (safe.token) safe.token = '****' + safe.token.slice(-8);
+  if (safe.bot_token) safe.bot_token = '****' + safe.bot_token.slice(-6);
+  const blob = new Blob([JSON.stringify(safe, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ezmeta_config.json';
+  a.click();
+  showToast('✅ Config exported!');
+}
+
+function resetConfig() {
+  if (confirm('Reset semua settings ke default?')) {
+    localStorage.removeItem(CFG_KEY);
+    showToast('✅ Config di-reset ke default');
+    loadConfig();
+  }
+}
+
+// Auto-load config when settings tab opened
+const origGoTab = window.goTab;
+
+loadData();
+setInterval(loadData, 5*60*1000);
+</script>
+</body>
+</html>
