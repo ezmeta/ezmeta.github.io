@@ -902,8 +902,8 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
         <button class="btn btn-dark" onclick="saveApiSettings()">Simpan API Settings</button>
       </div>
 
-      <!-- Telegram Settings -->
-      <div class="card" style="margin-bottom:16px;">
+      <!-- Telegram Settings — Admin Only -->
+      <div class="card" id="telegram-settings-card" style="margin-bottom:16px;">
         <div class="card-hd"><span class="card-title">📱 Telegram Settings</span><span class="badge b-green">Alert Bot</span></div>
         <!-- BOT TOKEN — Admin Only -->
         <div id="admin-bot-token-section" style="display:none;margin-bottom:16px;">
@@ -1133,9 +1133,11 @@ function setupDashboard(u) {
     document.querySelectorAll('.client-only').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.data-only').forEach(el => el.style.display = 'block');
     document.getElementById('client-switcher').style.display = 'block';
-    // Show BOT_TOKEN field for admin only
+    // Show BOT_TOKEN field + full Telegram card for admin only
     const botSection = document.getElementById('admin-bot-token-section');
     if (botSection) botSection.style.display = 'block';
+    const tgCard = document.getElementById('telegram-settings-card');
+    if (tgCard) tgCard.style.display = 'block';
     loadClientsTab();
     loadData();
   } else {
@@ -1144,9 +1146,11 @@ function setupDashboard(u) {
     document.getElementById('client-switcher').style.display = 'none';
     // Hide data tabs until setup complete
     document.querySelectorAll('.data-only').forEach(el => el.style.display = 'none');
-    // Hide BOT_TOKEN section for clients
+    // Hide BOT_TOKEN section + entire Telegram card for clients
     const botSection = document.getElementById('admin-bot-token-section');
     if (botSection) botSection.style.display = 'none';
+    const tgCard = document.getElementById('telegram-settings-card');
+    if (tgCard) tgCard.style.display = 'none';
     currentClientId = u.client_id;
     loadClientData(u.client_id);
     showClientWelcome(u);
@@ -2246,10 +2250,14 @@ async function loadRevenueTab() {
 const CFG_KEY = 'ezmeta_config';
 
 function getConfig() {
+  // Client — never read from localStorage, always from server
+  if (currentUser && !currentUser.isAdmin) return {};
   return JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
 }
 
 function saveConfig(updates) {
+  // Client — don't save to localStorage
+  if (currentUser && !currentUser.isAdmin) return updates;
   const cfg = { ...getConfig(), ...updates };
   localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
   return cfg;
@@ -2258,22 +2266,23 @@ function saveConfig(updates) {
 function loadConfig() {
   // CLIENT — load dari server (data client sendiri), bukan localStorage
   if (currentUser && !currentUser.isAdmin && currentUser.client_id) {
-    // Clear fields dulu — default kosong
+    // Clear ALL fields dulu supaya tak ada data lain tersisa
     document.getElementById('cfg-account').value = '';
+    document.getElementById('cfg-token').value = '';
     document.getElementById('cfg-chat-id').value = '';
     document.getElementById('cfg-mode').value = 'DEMO';
-    // Fetch dari server
+    // Fetch dari server — guna data client sendiri sahaja
     fetch(`${API_URL}/clients/${currentUser.client_id}`)
       .then(r => r.json()).then(client => {
         const acct = client.ad_account_id || '';
-        const chat = client.chat_id || '';
         const token = client.access_token || '';
         const hasLive = token && token !== 'LETAK_TOKEN_SINI' && acct;
-        document.getElementById('cfg-account').value = acct;
-        document.getElementById('cfg-chat-id').value = chat;
+        // Hanya isi kalau ada data — kalau kosong biar kosong
+        if (acct) document.getElementById('cfg-account').value = acct;
+        if (token && token !== 'LETAK_TOKEN_SINI') document.getElementById('cfg-token').value = token;
         document.getElementById('cfg-mode').value = hasLive ? 'LIVE' : 'DEMO';
       }).catch(()=>{});
-    return; // Client hanya load API settings — AI Rules etc kekal global
+    return;
   }
 
   // ADMIN — load dari localStorage seperti biasa
