@@ -874,22 +874,6 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
     <!-- SETTINGS -->
     <div class="tab-pane" id="pane-settings">
 
-      <!-- Profile -->
-      <div class="card" style="margin-bottom:16px;">
-        <div class="card-hd"><span class="card-title">👤 Profile</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
-          <div>
-            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Nama</label>
-            <input class="form-input" id="cfg-name" placeholder="Nama anda" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
-          </div>
-          <div>
-            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Password Baru</label>
-            <input type="password" class="form-input" id="cfg-pass" placeholder="Kosongkan jika tak nak tukar" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;" />
-          </div>
-        </div>
-        <button class="btn btn-dark" onclick="saveProfile()">Simpan Profile</button>
-      </div>
-
       <!-- API Settings -->
       <div class="card" style="margin-bottom:16px;">
         <div class="card-hd"><span class="card-title">🔑 API Settings</span><span class="badge b-blue">Meta API</span></div>
@@ -927,14 +911,36 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
           <input type="password" id="cfg-bot-token" placeholder="1234567890:ABCdef..." style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
           <div style="font-size:11px;color:var(--muted);margin-top:4px;">🔐 Bot token diuruskan oleh admin sahaja. Semua clients berkongsi bot <b>@EZMetaAlertbot</b></div>
         </div>
+        <!-- Chat ID — visible to both admin and client -->
         <div style="margin-bottom:16px;">
-          <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Chat ID (Admin)</label>
+          <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Telegram Chat ID</label>
           <input id="cfg-chat-id" placeholder="1938251758" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Chat ID admin untuk terima system alerts</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Chat ID anda untuk terima laporan iklan. Tidak tahu Chat ID? Lihat panduan di bawah ↓</div>
         </div>
-        <div style="display:flex;gap:10px;">
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
           <button class="btn btn-dark" onclick="saveTelegramSettings()">Simpan Telegram</button>
           <button class="btn btn-outline" onclick="testTelegram()">📤 Test Hantar Alert</button>
+        </div>
+        <!-- Chat ID Helper -->
+        <div style="background:#3b82f608;border:1px solid #3b82f620;border-radius:10px;padding:14px;">
+          <div style="font-size:12px;font-weight:600;margin-bottom:10px;color:var(--text);">💬 Cara Dapat Telegram Chat ID</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;">
+            <span style="font-size:16px;">1️⃣</span>
+            <div style="font-size:12px;color:var(--muted);">Cari <b>@EZMetaAlertbot</b> dalam Telegram → klik <b>START</b></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;">
+            <span style="font-size:16px;">2️⃣</span>
+            <div style="font-size:12px;color:var(--muted);">Hantar sebarang mesej kepada bot</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px;align-items:flex-start;">
+            <span style="font-size:16px;">3️⃣</span>
+            <div style="font-size:12px;color:var(--muted);">Klik butang di bawah — sistem akan detect Chat ID anda</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <a href="https://t.me/EZMetaAlertbot" target="_blank" class="btn btn-dark" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px;">✈️ Buka @EZMetaAlertbot</a>
+            <button class="btn btn-outline" style="font-size:12px;" onclick="checkMyChatId()">🔍 Detect Chat ID Saya</button>
+          </div>
+          <div id="chatid-result" style="margin-top:10px;display:none;padding:10px;background:var(--bg2);border-radius:8px;font-size:12px;"></div>
         </div>
       </div>
 
@@ -1026,65 +1032,6 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
             <div class="client-stat-lbl">Status</div>
             <div style="font-size:15px;font-weight:600;margin-top:4px;color:var(--green);" id="cp-status">ACTIVE</div>
           </div>
-        </div>
-      </div>
-
-      <!-- Setup Meta API -->
-      <div class="card" style="margin-bottom:16px;">
-        <div class="card-hd"><span class="card-title">🔑 Setup Meta API</span><span class="badge b-orange">Perlu untuk Live Mode</span></div>
-        <div style="background:var(--accent-light);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--accent);">
-          💡 Untuk EZMeta monitor ads anda secara real-time, anda perlu setup Meta Access Token dan Ad Account ID.
-        </div>
-        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px;">
-          <div>
-            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Ad Account ID</label>
-            <input id="cp-account-id" placeholder="act_XXXXXXXXXX" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
-            <div style="font-size:11px;color:var(--muted);margin-top:4px;">📍 Dapat dari URL adsmanager.facebook.com</div>
-          </div>
-          <div>
-            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Meta Access Token</label>
-            <input type="password" id="cp-token" placeholder="EAAVqTw..." style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
-            <div style="font-size:11px;color:var(--muted);margin-top:4px;">📍 Dapat dari developers.facebook.com → Graph API Explorer</div>
-          </div>
-          <div>
-            <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Telegram Chat ID</label>
-            <input id="cp-chatid" placeholder="1234567890" style="width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--text);background:var(--bg);outline:none;" />
-            <div style="font-size:11px;color:var(--muted);margin-top:4px;">📍 Tidak tahu Chat ID? Lihat panduan di bawah ↓</div>
-          </div>
-        </div>
-        <button class="btn btn-dark" onclick="saveClientCredentials()">💾 Simpan & Aktifkan</button>
-      </div>
-
-      <!-- Chat ID Helper -->
-      <div class="card" style="margin-bottom:16px;border:1px solid #3b82f620;background:#3b82f608;">
-        <div class="card-hd"><span class="card-title">💬 Cara Dapat Telegram Chat ID</span><span class="badge b-blue">Panduan</span></div>
-        <div style="margin-bottom:14px;">
-          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg2);border-radius:10px;margin-bottom:10px;">
-            <div style="font-size:24px;">1️⃣</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;margin-bottom:2px;">Buka Telegram</div>
-              <div style="font-size:12px;color:var(--muted);">Cari bot <b>@EZMetaAlertbot</b> dalam search bar Telegram</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg2);border-radius:10px;margin-bottom:10px;">
-            <div style="font-size:24px;">2️⃣</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;margin-bottom:2px;">Hantar /start</div>
-              <div style="font-size:12px;color:var(--muted);">Klik <b>START</b> atau taip <code style="background:var(--bg);padding:1px 5px;border-radius:4px;">/start</code> dan hantar</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg2);border-radius:10px;margin-bottom:14px;">
-            <div style="font-size:24px;">3️⃣</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;margin-bottom:2px;">Semak Chat ID</div>
-              <div style="font-size:12px;color:var(--muted);">Klik butang di bawah — admin akan check dan isi Chat ID untuk anda</div>
-            </div>
-          </div>
-          <a href="https://t.me/EZMetaAlertbot" target="_blank" class="btn btn-dark" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-right:8px;">
-            <span>✈️</span> Buka @EZMetaAlertbot
-          </a>
-          <button class="btn btn-outline" onclick="checkMyChatId()">🔍 Semak Chat ID Saya</button>
-          <div id="chatid-result" style="margin-top:10px;display:none;padding:10px;background:var(--bg2);border-radius:8px;font-size:12px;"></div>
         </div>
       </div>
 
@@ -2310,9 +2257,13 @@ function saveConfig(updates) {
 
 function loadConfig() {
   const cfg = getConfig();
-  // Load saved profile name
-  if (cfg.profile_name && document.getElementById('cfg-name')) {
-    document.getElementById('cfg-name').value = cfg.profile_name;
+
+  // If client — load their own chat_id from server
+  if (currentUser && !currentUser.isAdmin && currentUser.client_id) {
+    fetch(`${API_URL}/clients/${currentUser.client_id}`)
+      .then(r => r.json()).then(client => {
+        if (client.chat_id) document.getElementById('cfg-chat-id').value = client.chat_id;
+      }).catch(()=>{});
   }
   const preview = document.getElementById('config-preview');
   const display = {
@@ -2441,12 +2392,27 @@ async function checkMyChatId() {
 }
 
 async function saveTelegramSettings() {
-  const botToken = document.getElementById('cfg-bot-token').value;
-  const chatId = document.getElementById('cfg-chat-id').value;
+  const chatId = document.getElementById('cfg-chat-id').value.trim();
   if (!chatId) { showToast('⚠️ Masukkan Chat ID'); return; }
-  saveConfig({ bot_token: botToken, chat_id: chatId });
-  const ok = await saveConfigToAPI({ bot_token: botToken, chat_id: chatId });
-  showToast(ok ? '✅ Telegram disimpan ke server!' : '✅ Disimpan locally');
+
+  if (currentUser && !currentUser.isAdmin && currentUser.client_id) {
+    // Client — save chat_id to their own profile
+    try {
+      const r = await fetch(`${API_URL}/clients/${currentUser.client_id}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ chat_id: chatId })
+      });
+      if (r.ok) { showToast('✅ Chat ID disimpan! Telegram akan aktif lepas scan seterusnya.'); }
+      else { showToast('⚠️ Gagal simpan. Cuba lagi.'); }
+    } catch(e) { showToast('⚠️ Gagal simpan. Cuba lagi.'); }
+  } else {
+    // Admin — save bot_token + chat_id to global config
+    const botToken = document.getElementById('cfg-bot-token')?.value || '';
+    saveConfig({ bot_token: botToken, chat_id: chatId });
+    const ok = await saveConfigToAPI({ bot_token: botToken, chat_id: chatId });
+    showToast(ok ? '✅ Telegram disimpan ke server!' : '✅ Disimpan locally');
+  }
 }
 
 async function testTelegram() {
