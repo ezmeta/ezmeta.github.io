@@ -2211,7 +2211,7 @@ async function saveProfile() {
   // Save to localStorage config
   saveConfig({ profile_name: name });
 
-  // If client — update name in Supabase
+  // If client — update name in Supabase clients table
   if (currentUser?.client_id) {
     try {
       await fetch(API_URL + `/clients/${currentUser.client_id}`, {
@@ -2219,7 +2219,16 @@ async function saveProfile() {
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ name })
       });
-    } catch(e) { console.log('Profile update error:', e); }
+    } catch(e) { console.log('Client profile update error:', e); }
+  }
+
+  // If admin — update name in Supabase admins table
+  if (currentUser?.isAdmin && currentUser?.username) {
+    try {
+      await fetch(`${API_URL}/auth/update-profile?username=${encodeURIComponent(currentUser.username)}&name=${encodeURIComponent(name)}`, {
+        method: 'POST'
+      });
+    } catch(e) { console.log('Admin profile update error:', e); }
   }
 
   // Change password if filled
