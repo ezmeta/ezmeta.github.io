@@ -900,6 +900,13 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
           </div>
         </div>
         <button class="btn btn-dark" onclick="saveApiSettings()">Simpan API Settings</button>
+        <div id="client-telegram-hint" style="display:none;margin-top:16px;padding:12px 14px;background:#22c55e10;border:1px solid #22c55e30;border-radius:10px;">
+          <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:#16a34a;">✈️ Aktifkan Telegram Notifications</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5;">Start bot EZMeta dalam Telegram untuk terima laporan iklan 3x sehari secara automatik.</div>
+          <a href="https://t.me/EZMetaAlertbot" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#fff;text-decoration:none;background:#22c55e;padding:7px 14px;border-radius:7px;">
+            ✈️ Start @EZMetaAlertbot
+          </a>
+        </div>
       </div>
 
       <!-- Telegram Settings — Admin Only -->
@@ -1693,39 +1700,55 @@ function showClientSetupRequired() {
   // Replace overview content with setup guide
   const overview = document.getElementById('pane-overview');
   overview.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:40px;">
-      <div style="width:72px;height:72px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:24px;">🚀</div>
-      <div style="font-size:24px;font-weight:800;margin-bottom:8px;letter-spacing:-.5px;">Selamat Datang ke EZMeta!</div>
-      <div style="font-size:15px;color:var(--muted);margin-bottom:32px;max-width:400px;line-height:1.6;">
-        Akaun anda berjaya dibuat. Sila setup Meta API untuk EZMeta mula memantau ads anda.
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:32px 20px;">
+      <div style="width:72px;height:72px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:20px;">🚀</div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:8px;letter-spacing:-.5px;">Selamat Datang ke EZMeta!</div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:28px;max-width:420px;line-height:1.6;">
+        Akaun anda berjaya dibuat. Ikut 3 langkah di bawah untuk EZMeta mula memantau iklan anda secara automatik.
       </div>
-      <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:440px;width:100%;text-align:left;margin-bottom:24px;">
-        <div style="font-size:14px;font-weight:700;margin-bottom:16px;">📋 Setup dalam 3 langkah:</div>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">1</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;">Dapatkan Ad Account ID</div>
-              <div style="font-size:11px;color:var(--muted);">Dari URL adsmanager.facebook.com — contoh: act_XXXXXXXXXX</div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:460px;width:100%;text-align:left;margin-bottom:24px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:16px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">📋 Setup dalam 3 langkah</div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+
+          <!-- Step 1 -->
+          <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border);">
+            <div style="width:32px;height:32px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">1</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px;">Dapatkan Ad Account ID</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5;">Log masuk Ads Manager → salin ID dari URL browser<br><span style="font-family:monospace;background:var(--bg2);padding:1px 5px;border-radius:3px;font-size:10px;">adsmanager.facebook.com/act_XXXXXXXXXX</span></div>
+              <a href="https://adsmanager.facebook.com" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:4px 10px;border-radius:6px;">
+                🔗 Buka Ads Manager
+              </a>
             </div>
           </div>
-          <div style="display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">2</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;">Dapatkan Meta Access Token</div>
-              <div style="font-size:11px;color:var(--muted);">Dari developers.facebook.com → Graph API Explorer</div>
+
+          <!-- Step 2 -->
+          <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border);">
+            <div style="width:32px;height:32px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">2</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px;">Dapatkan Meta Access Token</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5;">Pergi Graph API Explorer → pilih app → generate token dengan permission <b>ads_read</b> dan <b>ads_management</b></div>
+              <a href="https://developers.facebook.com/tools/explorer/" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:4px 10px;border-radius:6px;">
+                🔗 Buka Graph API Explorer
+              </a>
             </div>
           </div>
-          <div style="display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">3</div>
-            <div>
-              <div style="font-size:13px;font-weight:600;">Start Telegram Bot</div>
-              <div style="font-size:11px;color:var(--muted);">Message @EZMetaAlertbot dalam Telegram untuk dapat Chat ID</div>
+
+          <!-- Step 3 -->
+          <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;">
+            <div style="width:32px;height:32px;background:#22c55e;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">3</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px;">Aktifkan Telegram Notifications</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5;">Start bot EZMeta dalam Telegram — laporan iklan akan dihantar terus ke Telegram anda 3x sehari</div>
+              <a href="https://t.me/EZMetaAlertbot" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#fff;text-decoration:none;background:#22c55e;padding:4px 10px;border-radius:6px;">
+                ✈️ Start @EZMetaAlertbot
+              </a>
             </div>
           </div>
+
         </div>
       </div>
-      <button onclick="goToSetup()" style="background:var(--text);color:#fff;border:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+      <button onclick="goToSetup()" style="background:var(--text);color:#fff;border:none;padding:14px 32px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
         ⚙️ Pergi Setup Sekarang →
       </button>
     </div>`;
@@ -1733,9 +1756,10 @@ function showClientSetupRequired() {
 
 function goToSetup() {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  document.getElementById('pane-myprofile').classList.add('active');
-  document.getElementById('pg-title').textContent = 'Profil & Setup';
+  document.getElementById('pane-settings').classList.add('active');
+  document.getElementById('pg-title').textContent = 'Settings';
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  loadConfig();
 }
 
 function showClientWelcome(u) {
@@ -2280,6 +2304,9 @@ function loadConfig() {
         if (token && token !== 'LETAK_TOKEN_SINI') document.getElementById('cfg-token').value = token;
         document.getElementById('cfg-mode').value = hasLive ? 'LIVE' : 'DEMO';
       }).catch(()=>{});
+    // Show telegram bot hint for client
+    const tgHint = document.getElementById('client-telegram-hint');
+    if (tgHint) tgHint.style.display = 'block';
     return;
   }
 
