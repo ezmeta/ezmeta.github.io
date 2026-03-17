@@ -748,10 +748,11 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
       </div>
 
       <!-- Scan All Button -->
-      <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
         <button class="btn btn-dark" onclick="scanAllClients()">⚡ Scan Semua Clients + Telegram</button>
         <button class="btn btn-outline" onclick="loadClientsTab()">⟳ Refresh</button>
         <button class="btn btn-outline" onclick="toggleAddForm()">➕ Add Client Baru</button>
+        <button class="btn btn-outline" onclick="checkAllTokens()">🔑 Check All Tokens</button>
       </div>
 
       <!-- Add Client Form -->
@@ -1658,20 +1659,88 @@ function showToast(msg) {
 
 async function loadClientData(clientId) {
   try {
+    // First check if client has token configured
+    const rc = await fetch(API_URL + `/clients?id=eq.${clientId}`);
+    // Get client info from API
+    const clientsResp = await fetch(API_URL + `/clients`);
+    const clientsData2 = await clientsResp.json();
+    const clientInfo = clientsData2.clients?.find(c => c.id === clientId);
+
+    const hasToken = clientInfo?.access_token && 
+                     clientInfo.access_token !== 'LETAK_TOKEN_SINI' &&
+                     !clientInfo.access_token.startsWith('LETAK');
+
+    if (!hasToken) {
+      // Show setup required page
+      showClientSetupRequired();
+      return;
+    }
+
+    // Load real data
     const r = await fetch(API_URL + `/data?client_id=${clientId}&t=` + Date.now());
     if (!r.ok) throw new Error();
     D = await r.json();
     renderAll();
     document.getElementById('sync-time').textContent = '⟳ ' + new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'});
   } catch(e) {
-    try {
-      const r2 = await fetch('ezmeta_data.json?t=' + Date.now());
-      D = await r2.json();
-      renderAll();
-    } catch(e2) {
-      showToast('⚠️ Gagal load data');
-    }
+    showClientSetupRequired();
   }
+}
+
+function showClientSetupRequired() {
+  // Hide all tab panes
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+  // Show setup required in overview
+  document.getElementById('pane-overview').classList.add('active');
+  document.getElementById('pg-title').textContent = 'Overview';
+
+  // Replace overview content with setup guide
+  const overview = document.getElementById('pane-overview');
+  overview.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:40px;">
+      <div style="width:72px;height:72px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:24px;">🚀</div>
+      <div style="font-size:24px;font-weight:800;margin-bottom:8px;letter-spacing:-.5px;">Selamat Datang ke EZMeta!</div>
+      <div style="font-size:15px;color:var(--muted);margin-bottom:32px;max-width:400px;line-height:1.6;">
+        Akaun anda berjaya dibuat. Sila setup Meta API untuk EZMeta mula memantau ads anda.
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:440px;width:100%;text-align:left;margin-bottom:24px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;">📋 Setup dalam 3 langkah:</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">1</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;">Dapatkan Ad Account ID</div>
+              <div style="font-size:11px;color:var(--muted);">Dari URL adsmanager.facebook.com — contoh: act_XXXXXXXXXX</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">2</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;">Dapatkan Meta Access Token</div>
+              <div style="font-size:11px;color:var(--muted);">Dari developers.facebook.com → Graph API Explorer</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">3</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;">Start Telegram Bot</div>
+              <div style="font-size:11px;color:var(--muted);">Message @EZMetaAlertbot dalam Telegram untuk dapat Chat ID</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button onclick="goToSetup()" style="background:var(--text);color:#fff;border:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+        ⚙️ Pergi Setup Sekarang →
+      </button>
+    </div>`;
+}
+
+function goToSetup() {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-myprofile').classList.add('active');
+  document.getElementById('pg-title').textContent = 'Profil & Setup';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 }
 
 function showClientWelcome(u) {
@@ -1767,6 +1836,37 @@ async function loadClientsTab() {
   }
 }
 
+async function refreshToken(clientId, name) {
+  showToast(`🔑 Refreshing token for ${name}...`);
+  try {
+    const r = await fetch(`${API_URL}/token/exchange/${clientId}`, { method: 'POST' });
+    const result = await r.json();
+    if (result.status === 'ok') {
+      showToast(`✅ Token ${name} refreshed! Valid ${result.days_valid} hari`);
+      loadClientsTab();
+    } else {
+      showToast(`⚠️ ${result.error || 'Refresh failed'}`);
+    }
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
+async function checkAllTokens() {
+  try {
+    const r = await fetch(`${API_URL}/token/check-all`);
+    const data = await r.json();
+    const results = data.results || [];
+    const expired = results.filter(t => !t.valid);
+    const expiring = results.filter(t => t.valid && t.days_left < 10);
+    const ok = results.filter(t => t.valid && t.days_left >= 10);
+
+    let msg = `Token Status (${results.length} clients):\n`;
+    ok.forEach(t => msg += `✅ ${t.client_name}: ${t.days_left} hari lagi\n`);
+    expiring.forEach(t => msg += `⚠️ ${t.client_name}: ${t.days_left} hari — perlu refresh!\n`);
+    expired.forEach(t => msg += `🔴 ${t.client_name}: EXPIRED / belum set\n`);
+    alert(msg);
+  } catch(e) { showToast('⚠️ API tidak aktif'); }
+}
+
 async function approveClient(clientId, name) {
   try {
     const r = await fetch(API_URL + `/clients/${clientId}/approve`, { method: 'POST' });
@@ -1808,9 +1908,14 @@ function renderClientsGrid(clients) {
 
   grid.innerHTML = clients.map(c => {
     const isDemo = !c.access_token || c.access_token === 'LETAK_TOKEN_SINI' || c.access_token.startsWith('****');
-    const tokenBadge = isDemo
-      ? '<span class="token-status token-demo">DEMO</span>'
-      : '<span class="token-status token-ok">● Live</span>';
+    const daysLeft = c.token_days_left || 0;
+    const tokenNeedsRefresh = !isDemo && daysLeft > 0 && daysLeft < 10;
+    const tokenExpired = !isDemo && daysLeft === 0 && c.token_expires_at;
+    let tokenBadge = '';
+    if (isDemo) tokenBadge = '<span class="token-status token-demo">DEMO</span>';
+    else if (tokenExpired) tokenBadge = '<span class="token-status token-exp">● EXPIRED</span>';
+    else if (tokenNeedsRefresh) tokenBadge = `<span class="token-status token-exp">⚠️ ${daysLeft}d left</span>`;
+    else tokenBadge = '<span class="token-status token-ok">● Live</span>';
     const fee = c.monthly_fee_rm || (c.plan==='STARTER'?49:c.plan==='PRO'?99:199);
 
     return `<div class="client-card plan-${c.plan} status-${c.status}">
@@ -1848,6 +1953,7 @@ function renderClientsGrid(clients) {
         <button class="mini-btn primary" onclick="viewClientData('${c.id}','${c.name}')">📊 View Data</button>
         <button class="mini-btn" onclick="scanClient('${c.id}','${c.name}')">⚡ Scan</button>
         <button class="mini-btn" onclick="editClient('${c.id}')">✏️ Edit</button>
+        ${!isDemo ? `<button class="mini-btn" onclick="refreshToken('${c.id}','${c.name}')" title="Refresh Meta Token">🔑 Token</button>` : ''}
         <button class="mini-btn" onclick="removeClient('${c.id}','${c.name}')">🗑</button>
       </div>
     </div>`;
