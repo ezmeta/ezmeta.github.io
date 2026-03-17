@@ -1911,22 +1911,52 @@ function generatePass() {
 function toggleAddForm() {
   const form = document.getElementById('add-client-form');
   form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (form.style.display === 'none') {
+    editingClientId = null;
+    const btn = document.querySelector('#add-client-form .btn-dark');
+    if (btn) btn.textContent = '💾 Simpan Client';
+  }
 }
 
 async function addNewClient() {
   const name = document.getElementById('nc-name').value;
   const biz = document.getElementById('nc-biz').value;
   const plan = document.getElementById('nc-plan').value;
-  const account = '';
-  const chatId = '';
   const phone = document.getElementById('nc-phone').value.trim();
   const fee = parseFloat(document.getElementById('nc-fee').value) || (plan==='STARTER'?49:plan==='PRO'?99:199);
   const notes = document.getElementById('nc-notes2')?.value || '';
   const tempPass = document.getElementById('nc-temppass').value.trim();
+  const email = document.getElementById('nc-email').value.trim();
 
   if (!name) { showToast('⚠️ Nama wajib diisi'); return; }
-  const email2 = document.getElementById('nc-email').value.trim();
-  if (!email2) { showToast('⚠️ Email wajib diisi'); return; }
+
+  // ---- EDIT MODE ----
+  if (editingClientId) {
+    try {
+      const updates = { name, business: biz, plan, email, phone, monthly_fee_rm: fee, notes };
+      if (tempPass) updates.temp_password = tempPass;
+      const r = await fetch(API_URL + `/clients/${editingClientId}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(updates)
+      });
+      const result = await r.json();
+      if (r.ok) {
+        showToast(`✅ Client ${name} berjaya dikemaskini!`);
+        editingClientId = null;
+        const btn = document.querySelector('#add-client-form .btn-dark');
+        if (btn) btn.textContent = '💾 Simpan Client';
+        toggleAddForm();
+        loadClientsTab();
+      } else {
+        showToast('⚠️ Gagal update: ' + (result.detail||''));
+      }
+    } catch(e) { showToast('⚠️ API tidak aktif'); }
+    return;
+  }
+
+  // ---- ADD MODE ----
+  if (!email) { showToast('⚠️ Email wajib diisi'); return; }
   if (!phone) { showToast('⚠️ No. WhatsApp wajib diisi'); return; }
   if (!tempPass || tempPass.length < 6) { showToast('⚠️ Password sementara wajib diisi. Klik 🔀 Auto!'); return; }
 
@@ -2002,20 +2032,29 @@ async function removeClient(clientId, name) {
   } catch(e) { showToast('⚠️ API tidak aktif'); }
 }
 
+let editingClientId = null;
+
 function editClient(clientId) {
   const client = clientsData.find(c=>c.id===clientId);
   if (!client) return;
-  // Pre-fill add form with client data
+  editingClientId = clientId;
+
   document.getElementById('add-client-form').style.display = 'block';
   document.getElementById('nc-name').value = client.name || '';
   document.getElementById('nc-biz').value = client.business || '';
   document.getElementById('nc-plan').value = client.plan || 'STARTER';
-  document.getElementById('nc-account').value = client.ad_account_id || '';
-  document.getElementById('nc-chatid').value = client.chat_id || '';
+  document.getElementById('nc-email').value = client.email || '';
+  document.getElementById('nc-phone').value = client.phone || '';
   document.getElementById('nc-fee').value = client.monthly_fee_rm || '';
-  document.getElementById('nc-notes').value = client.notes || '';
+  document.getElementById('nc-notes2').value = client.notes || '';
   document.getElementById('nc-temppass').value = client.temp_password || '';
-  showToast('📝 Edit client — update dan simpan semula');
+
+  // Change button text to Update
+  const btn = document.querySelector('#add-client-form .btn-dark');
+  if (btn) btn.textContent = '💾 Update Client';
+
+  document.getElementById('add-client-form').scrollIntoView({behavior:'smooth'});
+  showToast('📝 Edit mode — kemaskini dan klik Update Client');
 }
 
 // ============================================================
@@ -2123,14 +2162,34 @@ function loadConfig() {
   if (cfg.time3) document.getElementById('cfg-time3').value = cfg.time3;
 }
 
-function saveProfile() {
+async function saveProfile() {
   const name = document.getElementById('cfg-name').value;
   const pass = document.getElementById('cfg-pass').value;
   if (!name) { showToast('⚠️ Masukkan nama'); return; }
-  saveConfig({ profile_name: name });
+
+  // Update display name
   document.getElementById('user-name').textContent = name;
-  if (pass) showToast('✅ Profile & password dikemaskini!');
-  else showToast('✅ Profile disimpan!');
+  saveConfig({ profile_name: name });
+
+  // If client, update via API
+  if (currentUser?.client_id) {
+    try {
+      await fetch(API_URL + `/clients/${currentUser.client_id}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name })
+      });
+      currentUser.name = name;
+      sessionStorage.setItem('ezmeta_user', JSON.stringify(currentUser));
+    } catch(e) {}
+  }
+
+  // Change password if filled
+  if (pass && currentUser?.client_id) {
+    await saveClientPassword();
+  }
+
+  showToast('✅ Profile disimpan!');
 }
 
 async function saveApiSettings() {
