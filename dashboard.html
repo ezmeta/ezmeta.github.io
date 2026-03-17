@@ -1933,7 +1933,16 @@ async function addNewClient() {
   // ---- EDIT MODE ----
   if (editingClientId) {
     try {
-      const updates = { name, business: biz, plan, email, phone, monthly_fee_rm: fee, notes };
+      const currentPhone = document.getElementById('nc-phone')?.value.trim() || phone;
+      const updates = { 
+        name, 
+        business: biz, 
+        plan, 
+        email, 
+        phone: currentPhone, 
+        monthly_fee_rm: fee, 
+        notes: document.getElementById('nc-notes2')?.value || notes 
+      };
       if (tempPass) updates.temp_password = tempPass;
       const r = await fetch(API_URL + `/clients/${editingClientId}`, {
         method: 'PUT',
@@ -2027,8 +2036,12 @@ async function removeClient(clientId, name) {
   if (!confirm(`Padam client "${name}"? Tindakan ini tidak boleh dibatalkan.`)) return;
   try {
     const r = await fetch(API_URL + `/clients/${clientId}`, { method: 'DELETE' });
-    if (r.ok) { showToast(`✅ Client ${name} dipadam`); loadClientsTab(); }
-    else showToast('⚠️ Gagal padam client');
+    if (r.ok) {
+      showToast(`✅ Client ${name} dipadam`);
+      clientsData = clientsData.filter(c => c.id !== clientId);
+      renderClientsGrid(clientsData.filter(c=>c.status!=='PENDING'&&c.status!=='REJECTED'));
+      setTimeout(() => loadClientsTab(), 800);
+    } else showToast('⚠️ Gagal padam client');
   } catch(e) { showToast('⚠️ API tidak aktif'); }
 }
 
@@ -2046,8 +2059,8 @@ function editClient(clientId) {
   document.getElementById('nc-email').value = client.email || '';
   document.getElementById('nc-phone').value = client.phone || '';
   document.getElementById('nc-fee').value = client.monthly_fee_rm || '';
-  document.getElementById('nc-notes2').value = client.notes || '';
-  document.getElementById('nc-temppass').value = client.temp_password || '';
+  if (document.getElementById('nc-notes2')) document.getElementById('nc-notes2').value = client.notes || '';
+  if (document.getElementById('nc-temppass')) document.getElementById('nc-temppass').value = client.temp_password || '';
 
   // Change button text to Update
   const btn = document.querySelector('#add-client-form .btn-dark');
