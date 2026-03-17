@@ -903,7 +903,7 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
       </div>
 
       <!-- Telegram Settings — Admin Only -->
-      <div class="card" id="telegram-settings-card" style="margin-bottom:16px;display:none;">
+      <div class="card admin-only" id="telegram-settings-card" style="margin-bottom:16px;display:none;">
         <div class="card-hd"><span class="card-title">📱 Telegram Settings</span><span class="badge b-green">Alert Bot</span></div>
         <!-- BOT TOKEN — Admin Only -->
         <div id="admin-bot-token-section" style="display:none;margin-bottom:16px;">
@@ -1136,8 +1136,7 @@ function setupDashboard(u) {
     // Show BOT_TOKEN field + full Telegram card for admin only
     const botSection = document.getElementById('admin-bot-token-section');
     if (botSection) botSection.style.display = 'block';
-    const tgCard = document.getElementById('telegram-settings-card');
-    if (tgCard) tgCard.style.display = 'block';
+
     loadClientsTab();
     loadData();
   } else {
@@ -1149,8 +1148,7 @@ function setupDashboard(u) {
     // Hide BOT_TOKEN section + entire Telegram card for clients
     const botSection = document.getElementById('admin-bot-token-section');
     if (botSection) botSection.style.display = 'none';
-    const tgCard = document.getElementById('telegram-settings-card');
-    if (tgCard) tgCard.style.display = 'none';
+
     currentClientId = u.client_id;
     loadClientData(u.client_id);
     showClientWelcome(u);
